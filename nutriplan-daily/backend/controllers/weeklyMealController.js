@@ -188,18 +188,28 @@ function processIngredients(ingredients, allIngredients) {
   if (!ingredients || !Array.isArray(ingredients)) return;
   
   ingredients.forEach(ingredient => {
-    const key = ingredient.name.toLowerCase();
-    if (allIngredients[key]) {
-      // Combine quantities if units match
-      if (allIngredients[key].unit === ingredient.unit) {
-        allIngredients[key].amount += ingredient.amount;
-      } else {
-        // If units don't match, create a new entry with a different key
-        const newKey = `${key}_${ingredient.unit}`;
-        allIngredients[newKey] = { ...ingredient };
+    // Handle both string ingredients and object ingredients
+    if (typeof ingredient === 'string') {
+      // For simple string ingredients, just add them to the list
+      const key = ingredient.toLowerCase().trim();
+      if (key) {
+        allIngredients[key] = { name: ingredient, amount: 1, unit: 'item' };
       }
-    } else {
-      allIngredients[key] = { ...ingredient };
+    } else if (ingredient && typeof ingredient === 'object' && ingredient.name) {
+      // For object ingredients with name property
+      const key = ingredient.name.toLowerCase();
+      if (allIngredients[key]) {
+        // Combine quantities if units match
+        if (allIngredients[key].unit === ingredient.unit) {
+          allIngredients[key].amount += ingredient.amount;
+        } else {
+          // If units don't match, create a new entry with a different key
+          const newKey = `${key}_${ingredient.unit}`;
+          allIngredients[newKey] = { ...ingredient };
+        }
+      } else {
+        allIngredients[key] = { ...ingredient };
+      }
     }
   });
 }
