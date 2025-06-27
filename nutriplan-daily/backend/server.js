@@ -9,6 +9,7 @@ const userRoutes = require('./routes/userRoutes');
 const mealRoutes = require('./routes/mealRoutes');
 const recipeRoutes = require('./routes/recipeRoutes');
 const favoriteRoutes = require('./routes/favoriteRoutes');
+// const restaurantRoutes = require('./routes/restaurantRoutes');
 require('./config/database');
 
 const app = express();
@@ -25,6 +26,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/recipes', recipeRoutes);
 app.use('/api/favorites', favoriteRoutes);
+// app.use('/api/restaurants', restaurantRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));

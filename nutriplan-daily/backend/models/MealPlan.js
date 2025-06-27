@@ -3,14 +3,14 @@ const SpoonacularService = require('../services/spoonacularService');
 const Meal = require('./Meal');
 
 class MealPlan {
-  static generateForUser(userId, preferences = {}, forceNew = false) {
+  static generateForUser(userId, preferences = {}, forceNew = false, date = null) {
     return new Promise(async (resolve, reject) => {
       try {
-        const today = new Date().toISOString().split('T')[0];
+        const targetDate = date || new Date().toISOString().split('T')[0];
         
         // Only return existing plan if not forcing new generation
         if (!forceNew) {
-          const existingPlan = await this.findByUserAndDate(userId, today);
+          const existingPlan = await this.findByUserAndDate(userId, targetDate);
           if (existingPlan) {
             return resolve(existingPlan);
           }
@@ -70,14 +70,14 @@ class MealPlan {
 
         db.run(
           `INSERT INTO user_meal_plans (user_id, date, breakfast_id, lunch_id, dinner_id) VALUES (?, ?, ?, ?, ?)`,
-          [userId, today, breakfastMeal.id, lunchMeal.id, dinnerMeal.id],
+          [userId, targetDate, breakfastMeal.id, lunchMeal.id, dinnerMeal.id],
           function(err) {
             if (err) reject(err);
             else {
               resolve({
                 id: this.lastID,
                 user_id: userId,
-                date: today,
+                date: targetDate,
                 breakfast: breakfastMeal,
                 lunch: lunchMeal,
                 dinner: dinnerMeal
@@ -199,16 +199,22 @@ class MealPlan {
           b.id as breakfast_id, b.name as breakfast_name, b.calories as breakfast_calories, 
           b.protein as breakfast_protein, b.carbs as breakfast_carbs, b.fat as breakfast_fat, 
           b.image_url as breakfast_image_url, b.dietary_tags as breakfast_dietary_tags,
+          br.ingredients as breakfast_ingredients,
           l.id as lunch_id, l.name as lunch_name, l.calories as lunch_calories,
           l.protein as lunch_protein, l.carbs as lunch_carbs, l.fat as lunch_fat, 
           l.image_url as lunch_image_url, l.dietary_tags as lunch_dietary_tags,
+          lr.ingredients as lunch_ingredients,
           d.id as dinner_id, d.name as dinner_name, d.calories as dinner_calories,
           d.protein as dinner_protein, d.carbs as dinner_carbs, d.fat as dinner_fat, 
-          d.image_url as dinner_image_url, d.dietary_tags as dinner_dietary_tags
+          d.image_url as dinner_image_url, d.dietary_tags as dinner_dietary_tags,
+          dr.ingredients as dinner_ingredients
         FROM user_meal_plans p
         JOIN meals b ON p.breakfast_id = b.id
         JOIN meals l ON p.lunch_id = l.id
         JOIN meals d ON p.dinner_id = d.id
+        LEFT JOIN recipes br ON b.id = br.meal_id
+        LEFT JOIN recipes lr ON l.id = lr.meal_id
+        LEFT JOIN recipes dr ON d.id = dr.meal_id
         WHERE p.user_id = ? AND p.date = ?
       `, [userId, date], (err, row) => {
         if (err) reject(err);
@@ -225,7 +231,8 @@ class MealPlan {
               carbs: row.breakfast_carbs,
               fat: row.breakfast_fat,
               image_url: row.breakfast_image_url,
-              dietary_tags: row.breakfast_dietary_tags
+              dietary_tags: row.breakfast_dietary_tags,
+              ingredients: row.breakfast_ingredients ? JSON.parse(row.breakfast_ingredients) : []
             },
             lunch: {
               id: row.lunch_id,
@@ -235,7 +242,8 @@ class MealPlan {
               carbs: row.lunch_carbs,
               fat: row.lunch_fat,
               image_url: row.lunch_image_url,
-              dietary_tags: row.lunch_dietary_tags
+              dietary_tags: row.lunch_dietary_tags,
+              ingredients: row.lunch_ingredients ? JSON.parse(row.lunch_ingredients) : []
             },
             dinner: {
               id: row.dinner_id,
@@ -245,7 +253,8 @@ class MealPlan {
               carbs: row.dinner_carbs,
               fat: row.dinner_fat,
               image_url: row.dinner_image_url,
-              dietary_tags: row.dinner_dietary_tags
+              dietary_tags: row.dinner_dietary_tags,
+              ingredients: row.dinner_ingredients ? JSON.parse(row.dinner_ingredients) : []
             }
           });
         } else {

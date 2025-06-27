@@ -864,6 +864,504 @@ async function removeFavoriteFromList(mealId) {
     }
 }
 
+// Show weekly meal planner
+async function showWeeklyPlanner() {
+    const modal = document.createElement('div');
+    modal.className = 'modal weekly-planner-modal';
+    
+    // Show loading state
+    modal.innerHTML = `
+        <div class="modal-content weekly-planner-content">
+            <div class="modal-header">
+                <h2>📅 Weekly Meal Planner</h2>
+                <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading your weekly meal plan...</p>
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    
+    try {
+        // Get start date (Monday of current week)
+        const today = new Date();
+        const monday = new Date(today);
+        const day = monday.getDay();
+        const diff = monday.getDate() - day + (day === 0 ? -6 : 1);
+        monday.setDate(diff);
+        const startDate = monday.toISOString().split('T')[0];
+        
+        // Fetch weekly meal plan
+        const response = await fetch(`${API_URL}/meals/weekly-plan?startDate=${startDate}`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            showWeeklyPlannerContent(modal, data.weeklyPlan);
+        } else {
+            throw new Error('Failed to load weekly plan');
+        }
+    } catch (error) {
+        console.error('Weekly planner error:', error);
+        modal.querySelector('.modal-body').innerHTML = `
+            <div class="error-state">
+                <span class="error-icon">😕</span>
+                <h3>Failed to load weekly plan</h3>
+                <p>${error.message}</p>
+            </div>
+        `;
+    }
+}
+
+// Show weekly planner content
+function showWeeklyPlannerContent(modal, weeklyPlan) {
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    const today = new Date();
+    const currentDayIndex = today.getDay() === 0 ? 6 : today.getDay() - 1; // Adjust for Monday start
+    
+    let weeklyCalories = 0;
+    let weeklyProtein = 0;
+    let weeklyCarbs = 0;
+    let weeklyFat = 0;
+    
+    // Calculate weekly totals
+    weeklyPlan.forEach(day => {
+        if (day.meals) {
+            weeklyCalories += (day.meals.breakfast?.calories || 0) + (day.meals.lunch?.calories || 0) + (day.meals.dinner?.calories || 0);
+            weeklyProtein += (day.meals.breakfast?.protein || 0) + (day.meals.lunch?.protein || 0) + (day.meals.dinner?.protein || 0);
+            weeklyCarbs += (day.meals.breakfast?.carbs || 0) + (day.meals.lunch?.carbs || 0) + (day.meals.dinner?.carbs || 0);
+            weeklyFat += (day.meals.breakfast?.fat || 0) + (day.meals.lunch?.fat || 0) + (day.meals.dinner?.fat || 0);
+        }
+    });
+    
+    const weeklyPlanHtml = days.map((day, index) => {
+        const dayPlan = weeklyPlan[index] || { meals: null };
+        const isToday = index === currentDayIndex;
+        const isPast = index < currentDayIndex;
+        
+        return `
+            <div class="day-plan ${isToday ? 'today' : ''} ${isPast ? 'past' : ''}">
+                <div class="day-header">
+                    <h3>${day}</h3>
+                    ${isToday ? '<span class="today-badge">Today</span>' : ''}
+                    ${dayPlan.meals ? `<span class="day-calories">${calculateDayCalories(dayPlan.meals)} cal</span>` : ''}
+                </div>
+                <div class="day-meals">
+                    ${dayPlan.meals ? `
+                        <div class="mini-meal breakfast">
+                            <span class="meal-type-icon">🌅</span>
+                            <div class="mini-meal-info">
+                                <p class="mini-meal-name">${dayPlan.meals.breakfast?.name || 'No breakfast'}</p>
+                                <p class="mini-meal-calories">${dayPlan.meals.breakfast?.calories || 0} cal</p>
+                            </div>
+                        </div>
+                        <div class="mini-meal lunch">
+                            <span class="meal-type-icon">☀️</span>
+                            <div class="mini-meal-info">
+                                <p class="mini-meal-name">${dayPlan.meals.lunch?.name || 'No lunch'}</p>
+                                <p class="mini-meal-calories">${dayPlan.meals.lunch?.calories || 0} cal</p>
+                            </div>
+                        </div>
+                        <div class="mini-meal dinner">
+                            <span class="meal-type-icon">🌙</span>
+                            <div class="mini-meal-info">
+                                <p class="mini-meal-name">${dayPlan.meals.dinner?.name || 'No dinner'}</p>
+                                <p class="mini-meal-calories">${dayPlan.meals.dinner?.calories || 0} cal</p>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="no-meals">
+                            <p>No meals planned</p>
+                            <button class="btn btn-small" onclick="generateDayMeals(${index})">Generate Meals</button>
+                        </div>
+                    `}
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    modal.querySelector('.modal-body').innerHTML = `
+        <div class="weekly-overview">
+            <div class="week-stats">
+                <div class="stat-item">
+                    <span class="stat-label">Weekly Calories</span>
+                    <span class="stat-value">${Math.round(weeklyCalories)}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Avg Daily</span>
+                    <span class="stat-value">${Math.round(weeklyCalories / 7)}</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Protein</span>
+                    <span class="stat-value">${Math.round(weeklyProtein)}g</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Shopping Items</span>
+                    <span class="stat-value">${countUniqueIngredients(weeklyPlan)}</span>
+                </div>
+            </div>
+            
+            <div class="week-actions">
+                <button class="btn btn-secondary" onclick="generateFullWeek()">
+                    <span class="btn-icon">🔄</span> Generate Full Week
+                </button>
+                <button class="btn btn-primary" onclick="showWeeklyShoppingList()">
+                    <span class="btn-icon">🛒</span> Weekly Shopping List
+                </button>
+                <button class="btn btn-amazon" onclick="orderOnAmazon()">
+                    <span class="btn-icon">📦</span> Order on Amazon Fresh
+                </button>
+            </div>
+        </div>
+        
+        <div class="weekly-calendar">
+            ${weeklyPlanHtml}
+        </div>
+    `;
+}
+
+// Calculate daily calories
+function calculateDayCalories(meals) {
+    return (meals.breakfast?.calories || 0) + (meals.lunch?.calories || 0) + (meals.dinner?.calories || 0);
+}
+
+// Count unique ingredients
+function countUniqueIngredients(weeklyPlan) {
+    const ingredients = new Set();
+    weeklyPlan.forEach(day => {
+        if (day.meals) {
+            ['breakfast', 'lunch', 'dinner'].forEach(mealType => {
+                if (day.meals[mealType]?.ingredients) {
+                    // ingredients are already parsed by backend
+                    const mealIngredients = Array.isArray(day.meals[mealType].ingredients) 
+                        ? day.meals[mealType].ingredients 
+                        : [];
+                    mealIngredients.forEach(ing => ingredients.add(ing.toLowerCase()));
+                }
+            });
+        }
+    });
+    return ingredients.size;
+}
+
+// Generate meals for a specific day
+async function generateDayMeals(dayIndex) {
+    try {
+        // Calculate the date for this day
+        const today = new Date();
+        const monday = new Date(today);
+        const day = monday.getDay();
+        const diff = monday.getDate() - day + (day === 0 ? -6 : 1);
+        monday.setDate(diff + dayIndex);
+        const date = monday.toISOString().split('T')[0];
+        
+        const response = await fetch(`${API_URL}/meals/generate-day`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ date })
+        });
+        
+        if (response.ok) {
+            // Refresh the weekly planner
+            document.querySelector('.weekly-planner-modal').remove();
+            showWeeklyPlanner();
+        }
+    } catch (error) {
+        console.error('Generate day meals error:', error);
+        showError('Failed to generate meals for this day');
+    }
+}
+
+// Generate full week of meals
+async function generateFullWeek() {
+    const modal = document.querySelector('.weekly-planner-modal');
+    const originalContent = modal.querySelector('.modal-body').innerHTML;
+    
+    modal.querySelector('.modal-body').innerHTML = `
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Generating your personalized weekly meal plan...</p>
+        </div>
+    `;
+    
+    try {
+        // Get start date (Monday of current week)
+        const today = new Date();
+        const monday = new Date(today);
+        const day = monday.getDay();
+        const diff = monday.getDate() - day + (day === 0 ? -6 : 1);
+        monday.setDate(diff);
+        const startDate = monday.toISOString().split('T')[0];
+        
+        const response = await fetch(`${API_URL}/meals/generate-week`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ startDate })
+        });
+        
+        if (response.ok) {
+            const weeklyPlan = await response.json();
+            showWeeklyPlannerContent(modal, weeklyPlan.weeklyPlan);
+        } else {
+            throw new Error('Failed to generate weekly plan');
+        }
+    } catch (error) {
+        console.error('Generate week error:', error);
+        modal.querySelector('.modal-body').innerHTML = originalContent;
+        showError('Failed to generate weekly plan');
+    }
+}
+
+// Show weekly shopping list
+async function showWeeklyShoppingList() {
+    try {
+        // Get start date (Monday of current week)
+        const today = new Date();
+        const monday = new Date(today);
+        const day = monday.getDay();
+        const diff = monday.getDate() - day + (day === 0 ? -6 : 1);
+        monday.setDate(diff);
+        const startDate = monday.toISOString().split('T')[0];
+        
+        const response = await fetch(`${API_URL}/meals/weekly-shopping-list?startDate=${startDate}`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            const shoppingData = await response.json();
+            showWeeklyShoppingModal(shoppingData);
+        }
+    } catch (error) {
+        console.error('Weekly shopping list error:', error);
+        showError('Failed to generate shopping list');
+    }
+}
+
+// Show weekly shopping modal
+function showWeeklyShoppingModal(shoppingData) {
+    const modal = document.createElement('div');
+    modal.className = 'modal shopping-list-modal';
+    
+    // Use the pre-categorized shopping list from backend
+    const categoriesHtml = Object.entries(shoppingData.shoppingList || {}).map(([category, items]) => `
+        <div class="category-section">
+            <h3 class="category-title">${category}</h3>
+            <div class="shopping-items">
+                ${items.map(item => `
+                    <div class="shopping-item">
+                        <label class="item-checkbox">
+                            <input type="checkbox" onchange="toggleShoppingItem(this)">
+                            <span class="item-text">${item.name} - ${item.amount} ${item.unit}</span>
+                        </label>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+    
+    modal.innerHTML = `
+        <div class="modal-content shopping-list-content">
+            <div class="modal-header">
+                <div>
+                    <h2>📋 Weekly Shopping List</h2>
+                    <p class="shopping-subtitle">For 7 days of meals</p>
+                </div>
+                <div class="shopping-actions">
+                    <button class="btn btn-small" onclick="printShoppingList()">🖨️ Print</button>
+                    <button class="btn btn-small btn-amazon" onclick="orderOnAmazon()">📦 Order on Amazon</button>
+                    <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="shopping-summary">
+                    <p><strong>${shoppingData.totalItems || 0}</strong> total items</p>
+                    <p>Estimated cost: <strong>$${shoppingData.estimatedCost || '---'}</strong></p>
+                </div>
+                <div class="shopping-categories">
+                    ${categoriesHtml}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Categorize shopping items
+function categorizeShopping(items) {
+    const categories = {
+        'Produce': [],
+        'Dairy & Eggs': [],
+        'Meat & Seafood': [],
+        'Pantry': [],
+        'Frozen': [],
+        'Other': []
+    };
+    
+    items.forEach(item => {
+        const category = determineCategory(item.name);
+        categories[category].push(item);
+    });
+    
+    // Remove empty categories
+    Object.keys(categories).forEach(key => {
+        if (categories[key].length === 0) delete categories[key];
+    });
+    
+    return categories;
+}
+
+// Determine item category
+function determineCategory(itemName) {
+    const name = itemName.toLowerCase();
+    if (name.match(/chicken|beef|pork|fish|salmon|shrimp|turkey/)) return 'Meat & Seafood';
+    if (name.match(/milk|cheese|yogurt|egg|butter|cream/)) return 'Dairy & Eggs';
+    if (name.match(/lettuce|tomato|onion|garlic|pepper|carrot|broccoli|fruit|apple|banana/)) return 'Produce';
+    if (name.match(/frozen|ice cream/)) return 'Frozen';
+    if (name.match(/rice|pasta|bread|flour|sugar|oil|sauce|spice/)) return 'Pantry';
+    return 'Other';
+}
+
+// Order on Amazon Fresh
+async function orderOnAmazon() {
+    const modal = document.createElement('div');
+    modal.className = 'modal amazon-modal';
+    
+    modal.innerHTML = `
+        <div class="modal-content amazon-modal-content">
+            <div class="modal-header">
+                <h2>📦 Order on Amazon Fresh</h2>
+                <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="amazon-integration">
+                    <div class="amazon-logo">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" style="width: 120px;">
+                    </div>
+                    <p>Connect your Amazon account to order groceries directly!</p>
+                    
+                    <div class="amazon-features">
+                        <div class="feature">
+                            <span class="feature-icon">🚚</span>
+                            <p>Free delivery on orders over $35</p>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">⚡</span>
+                            <p>Same-day or next-day delivery</p>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">💰</span>
+                            <p>Exclusive Prime member discounts</p>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-amazon-connect" onclick="connectAmazon()">
+                        Connect Amazon Account
+                    </button>
+                    
+                    <p class="amazon-note">
+                        Note: This will redirect you to Amazon to authorize NutriPlan Daily to create shopping lists in your Amazon Fresh account.
+                    </p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Connect to Amazon
+async function connectAmazon() {
+    // In production, this would initiate OAuth flow with Amazon
+    try {
+        const response = await fetch(`${API_URL}/amazon/auth-url`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            const { authUrl } = await response.json();
+            // window.location.href = authUrl;
+            
+            // For demo purposes
+            showSuccess('Amazon integration coming soon! For now, we\'ll generate a shopping list you can manually add to Amazon Fresh.');
+            
+            // Generate Amazon-compatible list
+            generateAmazonList();
+        }
+    } catch (error) {
+        console.error('Amazon connection error:', error);
+        showError('Failed to connect to Amazon');
+    }
+}
+
+// Generate Amazon-compatible shopping list
+async function generateAmazonList() {
+    try {
+        // Get start date (Monday of current week)
+        const today = new Date();
+        const monday = new Date(today);
+        const day = monday.getDay();
+        const diff = monday.getDate() - day + (day === 0 ? -6 : 1);
+        monday.setDate(diff);
+        const startDate = monday.toISOString().split('T')[0];
+        
+        const response = await fetch(`${API_URL}/meals/amazon-list?startDate=${startDate}`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            const items = data.amazonItems || [];
+            
+            // Create a text list for copying
+            const itemsList = items.map(item => `${item.quantity} ${item.name}`).join('\n');
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2>📋 Amazon Fresh Shopping List</h2>
+                        <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Copy this list and paste it into Amazon Fresh:</p>
+                        <textarea class="amazon-list-textarea" readonly>${itemsList}</textarea>
+                        <button class="btn btn-primary" onclick="copyToClipboard(this.previousElementSibling)">
+                            📋 Copy List
+                        </button>
+                        <a href="https://www.amazon.com/alm/storefront?almBrandId=QW1hem9uIEZyZXNo" target="_blank" class="btn btn-amazon">
+                            🛒 Open Amazon Fresh
+                        </a>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+    } catch (error) {
+        console.error('Generate Amazon list error:', error);
+        showError('Failed to generate Amazon list');
+    }
+}
+
+// Copy to clipboard
+function copyToClipboard(textarea) {
+    textarea.select();
+    document.execCommand('copy');
+    showSuccess('List copied to clipboard!');
+}
+
 // Create pie chart for meal card
 function createMealChart(canvasId, meal) {
     const canvas = document.getElementById(canvasId);
@@ -923,8 +1421,8 @@ function showMealModal(meal) {
     const modal = document.createElement('div');
     modal.className = 'modal';
     
-    const ingredients = meal.ingredients ? JSON.parse(meal.ingredients) : [];
-    const instructions = meal.instructions ? JSON.parse(meal.instructions) : [];
+    const ingredients = meal.ingredients ? (Array.isArray(meal.ingredients) ? meal.ingredients : JSON.parse(meal.ingredients)) : [];
+    const instructions = meal.instructions ? (Array.isArray(meal.instructions) ? meal.instructions : JSON.parse(meal.instructions)) : [];
     
     modal.innerHTML = `
         <div class="modal-content">
@@ -1124,7 +1622,7 @@ async function showShoppingList() {
         const allIngredients = [];
         
         const addIngredients = (meal, mealType) => {
-            const ingredients = meal.ingredients ? JSON.parse(meal.ingredients) : [];
+            const ingredients = meal.ingredients ? (Array.isArray(meal.ingredients) ? meal.ingredients : JSON.parse(meal.ingredients)) : [];
             ingredients.forEach(ing => {
                 allIngredients.push({
                     ingredient: ing,
@@ -1322,6 +1820,9 @@ function renderDashboard(mealPlan, totalNutrition, regenerationCount = 0, regene
                     </button>
                     <button class="btn btn-secondary compact" onclick="showFavorites()">
                         <span class="btn-icon">❤️</span> My Favorites
+                    </button>
+                    <button class="btn btn-primary compact" onclick="showWeeklyPlanner()">
+                        <span class="btn-icon">📅</span> Weekly Planner
                     </button>
                 </div>
             </div>
