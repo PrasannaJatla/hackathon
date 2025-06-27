@@ -290,7 +290,10 @@ function toggleWeightUnit(unit) {
 }
 
 // Profile Setup Handler
-document.getElementById('profileForm').addEventListener('submit', async (e) => {
+// Profile form submission
+const profileForm = document.getElementById('profileForm');
+if (profileForm) {
+    profileForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     // Validate final step
@@ -361,15 +364,19 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
     } catch (error) {
         showError('Network error. Please try again.');
     }
-});
+    });
+}
 
 // Logout Handler
-document.getElementById('logoutBtn').addEventListener('click', () => {
+const logoutBtn = document.getElementById('logoutBtn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
     localStorage.removeItem('authToken');
     authToken = null;
     currentUser = null;
     location.reload();
-});
+    });
+}
 
 // Check User Profile
 async function checkUserProfile() {
@@ -1179,7 +1186,7 @@ function showWeeklyShoppingModal(shoppingData) {
                 </div>
                 <div class="shopping-actions">
                     <button class="btn btn-small" onclick="printShoppingList()">🖨️ Print</button>
-                    <button class="btn btn-small btn-amazon" onclick="orderOnAmazon()">📦 Order on Amazon</button>
+                    <button class="btn btn-small btn-amazon" onclick="generateAmazonList()">📦 Order on Amazon</button>
                     <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
                 </div>
             </div>
@@ -1249,29 +1256,29 @@ async function orderOnAmazon() {
                     <div class="amazon-logo">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="Amazon" style="width: 120px;">
                     </div>
-                    <p>Connect your Amazon account to order groceries directly!</p>
+                    <p>Generate a shopping list for Amazon Fresh!</p>
                     
                     <div class="amazon-features">
                         <div class="feature">
-                            <span class="feature-icon">🚚</span>
-                            <p>Free delivery on orders over $35</p>
+                            <span class="feature-icon">📋</span>
+                            <p>Get your weekly shopping list</p>
                         </div>
                         <div class="feature">
-                            <span class="feature-icon">⚡</span>
-                            <p>Same-day or next-day delivery</p>
+                            <span class="feature-icon">📝</span>
+                            <p>Copy and paste into Amazon</p>
                         </div>
                         <div class="feature">
-                            <span class="feature-icon">💰</span>
-                            <p>Exclusive Prime member discounts</p>
+                            <span class="feature-icon">🛒</span>
+                            <p>Shop on Amazon Fresh</p>
                         </div>
                     </div>
                     
                     <button class="btn btn-amazon-connect" onclick="connectAmazon()">
-                        Connect Amazon Account
+                        Generate Shopping List
                     </button>
                     
                     <p class="amazon-note">
-                        Note: This will redirect you to Amazon to authorize NutriPlan Daily to create shopping lists in your Amazon Fresh account.
+                        Note: This will create a formatted shopping list that you can copy and use on Amazon Fresh.
                     </p>
                 </div>
             </div>
@@ -1283,26 +1290,15 @@ async function orderOnAmazon() {
 
 // Connect to Amazon
 async function connectAmazon() {
-    // In production, this would initiate OAuth flow with Amazon
-    try {
-        const response = await fetch(`${API_URL}/amazon/auth-url`, {
-            headers: { 'Authorization': `Bearer ${authToken}` }
-        });
-        
-        if (response.ok) {
-            const { authUrl } = await response.json();
-            // window.location.href = authUrl;
-            
-            // For demo purposes
-            showSuccess('Amazon integration coming soon! For now, we\'ll generate a shopping list you can manually add to Amazon Fresh.');
-            
-            // Generate Amazon-compatible list
-            generateAmazonList();
-        }
-    } catch (error) {
-        console.error('Amazon connection error:', error);
-        showError('Failed to connect to Amazon');
+    // For demo purposes, skip OAuth and directly generate the list
+    // Close the current modal
+    const amazonModal = document.querySelector('.amazon-modal');
+    if (amazonModal) {
+        amazonModal.remove();
     }
+    
+    // Generate Amazon-compatible list
+    generateAmazonList();
 }
 
 // Generate Amazon-compatible shopping list
@@ -1327,27 +1323,49 @@ async function generateAmazonList() {
             // Create a text list for copying
             const itemsList = items.map(item => `${item.quantity} ${item.name}`).join('\n');
             
+            // Create clickable items for Amazon Fresh search
+            const itemsHtml = items.map((item, index) => `
+                <div class="amazon-item" id="item-${index}">
+                    <span class="item-status">⏳</span>
+                    <span class="item-text">${item.quantity} ${item.name}</span>
+                    <button class="btn btn-small" onclick="searchAmazonItem('${encodeURIComponent(item.searchTerm || item.name)}', ${index})">
+                        Search on Amazon
+                    </button>
+                </div>
+            `).join('');
+            
             const modal = document.createElement('div');
-            modal.className = 'modal';
+            modal.className = 'modal amazon-list-modal';
             modal.innerHTML = `
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h2>📋 Amazon Fresh Shopping List</h2>
+                        <h2>🛒 Add Items to Amazon Fresh</h2>
                         <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
                     </div>
                     <div class="modal-body">
-                        <p>Copy this list and paste it into Amazon Fresh:</p>
-                        <textarea class="amazon-list-textarea" readonly>${itemsList}</textarea>
-                        <button class="btn btn-primary" onclick="copyToClipboard(this.previousElementSibling)">
-                            📋 Copy List
-                        </button>
-                        <a href="https://www.amazon.com/alm/storefront?almBrandId=QW1hem9uIEZyZXNo" target="_blank" class="btn btn-amazon">
-                            🛒 Open Amazon Fresh
-                        </a>
+                        <div class="amazon-auto-add">
+                            <h3>Click each item to search on Amazon Fresh:</h3>
+                            <p class="amazon-helper">Each click opens a new tab with Amazon Fresh search results. Add the item to your cart, then come back and click the next item.</p>
+                            <div class="amazon-items-list">
+                                ${itemsHtml}
+                            </div>
+                            <div class="amazon-actions">
+                                <button class="btn btn-primary" onclick="openAllAmazonSearches()">
+                                    🚀 Open All Searches (${items.length} tabs)
+                                </button>
+                                <button class="btn btn-secondary" onclick="copyToClipboard(this.nextElementSibling)">
+                                    📋 Copy List as Text
+                                </button>
+                                <textarea class="amazon-list-textarea hidden" readonly>${itemsList}</textarea>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
             document.body.appendChild(modal);
+            
+            // Store items globally for the "Open All" function
+            window.amazonShoppingItems = items;
         }
     } catch (error) {
         console.error('Generate Amazon list error:', error);
@@ -1355,10 +1373,52 @@ async function generateAmazonList() {
     }
 }
 
+// Search for individual item on Amazon Fresh
+function searchAmazonItem(searchTerm, index) {
+    const amazonFreshUrl = `https://www.amazon.com/s?k=${searchTerm}&i=amazonfresh`;
+    window.open(amazonFreshUrl, '_blank');
+    
+    // Mark item as searched
+    const itemElement = document.getElementById(`item-${index}`);
+    if (itemElement) {
+        const statusIcon = itemElement.querySelector('.item-status');
+        statusIcon.textContent = '✅';
+        itemElement.classList.add('searched');
+    }
+}
+
+// Open all Amazon searches (with delay to prevent popup blocking)
+function openAllAmazonSearches() {
+    if (!window.amazonShoppingItems) return;
+    
+    const confirmOpen = confirm(`This will open ${window.amazonShoppingItems.length} new tabs. Your browser might block some popups. Continue?`);
+    if (!confirmOpen) return;
+    
+    window.amazonShoppingItems.forEach((item, index) => {
+        setTimeout(() => {
+            searchAmazonItem(item.searchTerm || item.name, index);
+        }, index * 1000); // 1 second delay between each tab
+    });
+    
+    showSuccess('Opening Amazon Fresh searches... Add items to your cart in each tab.');
+}
+
 // Copy to clipboard
 function copyToClipboard(textarea) {
+    // Remove hidden class temporarily if needed
+    const wasHidden = textarea.classList.contains('hidden');
+    if (wasHidden) {
+        textarea.classList.remove('hidden');
+    }
+    
     textarea.select();
     document.execCommand('copy');
+    
+    // Re-hide if it was hidden
+    if (wasHidden) {
+        textarea.classList.add('hidden');
+    }
+    
     showSuccess('List copied to clipboard!');
 }
 
@@ -1915,6 +1975,12 @@ window.toggleFavorite = toggleFavorite;
 window.showFavorites = showFavorites;
 window.removeFavoriteFromList = removeFavoriteFromList;
 window.adjustMealCount = adjustMealCount;
+window.searchAmazonItem = searchAmazonItem;
+window.openAllAmazonSearches = openAllAmazonSearches;
+window.copyToClipboard = copyToClipboard;
+window.connectAmazon = connectAmazon;
+window.orderOnAmazon = orderOnAmazon;
+window.generateAmazonList = generateAmazonList;
 
 // Initialize App
 if (authToken) {

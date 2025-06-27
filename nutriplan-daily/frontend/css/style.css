@@ -2305,6 +2305,59 @@ input.error {
     font-size: 14px;
 }
 
+/* Amazon Shopping List */
+.amazon-items-list {
+    max-height: 400px;
+    overflow-y: auto;
+    margin: 20px 0;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.amazon-item {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    transition: background-color 0.2s;
+}
+
+.amazon-item:last-child {
+    border-bottom: none;
+}
+
+.amazon-item:hover {
+    background-color: #f8f9fa;
+}
+
+.amazon-item.searched {
+    background-color: #e8f5e9;
+}
+
+.item-status {
+    font-size: 20px;
+    margin-right: 12px;
+}
+
+.item-text {
+    flex: 1;
+    font-size: 14px;
+}
+
+.amazon-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.amazon-helper {
+    color: #666;
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
 /* Nutrition Section */
 .nutrition-section {
     background: white;
