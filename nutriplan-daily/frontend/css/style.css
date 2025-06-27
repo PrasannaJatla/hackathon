@@ -11,15 +11,15 @@
     --secondary-color: #3b82f6;
     --accent-color: #f59e0b;
     --danger-color: #ef4444;
-    --background: #0a0a0a;
-    --surface: #1a1a1a;
-    --surface-light: #252525;
-    --text-primary: #f5f5f5;
-    --text-secondary: #a3a3a3;
-    --border-color: #333333;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -1px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7), 0 4px 6px -2px rgba(0, 0, 0, 0.5);
+    --background: #fafafa;
+    --surface: #ffffff;
+    --surface-light: #f8f9fa;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --border-color: #e5e7eb;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --gradient-primary: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     --gradient-warm: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
@@ -48,7 +48,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #0a0a0a 0%, #111111 50%, #0a0a0a 100%);
+    background: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 50%, #fefce8 100%);
     position: relative;
 }
 
@@ -257,7 +257,6 @@ body {
 
 .auth-logo .logo {
     animation: bounce 2s ease-in-out infinite;
-    filter: drop-shadow(0 0 20px rgba(163, 230, 53, 0.4));
 }
 
 @keyframes bounce {
@@ -276,19 +275,19 @@ body {
 
 .form-header h2 {
     font-size: 32px;
-    color: var(--text-primary);
+    color: #2c3e50;
     margin-bottom: 10px;
     font-weight: 700;
 }
 
 .form-header p {
-    color: var(--text-secondary);
+    color: #7f8c8d;
     font-size: 16px;
 }
 
 .form-container h2 {
     margin-bottom: 20px;
-    color: var(--text-primary);
+    color: #2c3e50;
     text-align: center;
 }
 
@@ -300,7 +299,7 @@ body {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #2c3e50;
     font-size: 14px;
 }
 
@@ -341,7 +340,7 @@ body {
     display: block;
     margin-top: 6px;
     font-size: 13px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
 }
 
 .toggle-password {
@@ -351,12 +350,12 @@ body {
     border: none;
     cursor: pointer;
     padding: 8px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
     transition: color 0.3s;
 }
 
 .toggle-password:hover {
-    color: var(--text-primary);
+    color: #2c3e50;
 }
 
 .password-strength {
@@ -365,7 +364,7 @@ body {
 
 .strength-bar {
     height: 4px;
-    background: var(--border-color);
+    background: #e0e6ed;
     border-radius: 2px;
     overflow: hidden;
     margin-bottom: 8px;
@@ -395,7 +394,7 @@ body {
 
 .strength-text {
     font-size: 13px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
 }
 
 .checkbox-wrapper {
@@ -505,13 +504,13 @@ body {
 }
 
 .btn-secondary {
-    background: linear-gradient(135deg, #2a2a2a 0%, #1f1f1f 100%);
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
     color: var(--text-primary);
     border: 1px solid var(--border-color);
 }
 
 .btn-secondary:hover {
-    background: linear-gradient(135deg, #3a3a3a 0%, #2f2f2f 100%);
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
     transform: translateY(-2px);
     box-shadow: var(--shadow);
 }
@@ -523,7 +522,7 @@ body {
 }
 
 .divider span {
-    background: var(--surface);
+    background: white;
     padding: 0 16px;
     color: #95a5a6;
     font-size: 14px;
@@ -538,7 +537,7 @@ body {
     left: 0;
     right: 0;
     height: 1px;
-    background: var(--border-color);
+    background: #e0e6ed;
 }
 
 .social-login {
@@ -554,9 +553,9 @@ body {
     justify-content: center;
     gap: 8px;
     padding: 12px 16px;
-    border: 2px solid var(--border-color);
+    border: 2px solid #e0e6ed;
     border-radius: 12px;
-    background: var(--surface);
+    background: white;
     color: #555;
     font-size: 14px;
     font-weight: 600;
@@ -565,8 +564,8 @@ body {
 }
 
 .social-btn:hover {
-    border-color: var(--border-color);
-    background: var(--surface-light);
+    border-color: #ddd;
+    background: #f8f9fa;
 }
 
 .social-btn span {
@@ -585,10 +584,10 @@ body {
 .switch-form {
     text-align: center;
     margin-top: 40px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
     font-size: 14px;
     padding-top: 20px;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid #e0e6ed;
 }
 
 .switch-form a {
@@ -624,15 +623,15 @@ body {
 }
 
 .error-message {
-    background-color: rgba(239, 68, 68, 0.1);
-    color: #ff6b6b;
-    border: 1px solid rgba(239, 68, 68, 0.3);
+    background-color: #fef2f2;
+    color: var(--danger-color);
+    border: 1px solid #fee2e2;
 }
 
 .success-message {
-    background-color: rgba(34, 197, 94, 0.1);
-    color: #4ade80;
-    border: 1px solid rgba(34, 197, 94, 0.3);
+    background-color: #f0fdf4;
+    color: var(--primary-dark);
+    border: 1px solid #bbf7d0;
 }
 
 /* Profile Setup Page */
@@ -648,7 +647,7 @@ body {
 }
 
 .profile-header {
-    background: var(--surface);
+    background: white;
     border-radius: 20px;
     padding: 40px;
     margin-bottom: 30px;
@@ -673,7 +672,7 @@ body {
     left: 40px;
     right: 40px;
     height: 2px;
-    background: var(--border-color);
+    background: #e0e6ed;
     z-index: 0;
 }
 
@@ -689,7 +688,7 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--border-color);
+    background: #e0e6ed;
     color: #95a5a6;
     display: flex;
     align-items: center;
@@ -709,18 +708,18 @@ body {
 
 .step-label {
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
     font-weight: 500;
 }
 
 .step.active .step-label {
-    color: var(--text-primary);
+    color: #2c3e50;
     font-weight: 600;
 }
 
 .progress-bar {
     height: 6px;
-    background: var(--border-color);
+    background: #e0e6ed;
     border-radius: 3px;
     overflow: hidden;
 }
@@ -737,17 +736,17 @@ body {
 
 .profile-intro h1 {
     font-size: 32px;
-    color: var(--text-primary);
+    color: #2c3e50;
     margin-bottom: 10px;
 }
 
 .profile-intro p {
     font-size: 18px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
 }
 
 .profile-content {
-    background: var(--surface);
+    background: white;
     border-radius: 20px;
     padding: 40px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -775,13 +774,13 @@ body {
 
 .step-header h2 {
     font-size: 28px;
-    color: var(--text-primary);
+    color: #2c3e50;
     margin-bottom: 10px;
 }
 
 .step-header p {
     font-size: 16px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
 }
 
 .form-grid {
@@ -801,7 +800,7 @@ body {
     right: 16px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--text-secondary);
+    color: #7f8c8d;
     font-weight: 500;
 }
 
@@ -814,12 +813,12 @@ body {
 .unit-btn {
     flex: 1;
     padding: 8px 16px;
-    border: 2px solid var(--border-color);
-    background: var(--surface);
+    border: 2px solid #e0e6ed;
+    background: white;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
-    color: var(--text-secondary);
+    color: #7f8c8d;
     cursor: pointer;
     transition: all 0.3s ease;
 }
@@ -851,7 +850,7 @@ body {
 .radio-design {
     width: 20px;
     height: 20px;
-    border: 2px solid var(--border-color);
+    border: 2px solid #e0e6ed;
     border-radius: 50%;
     margin-right: 10px;
     position: relative;
@@ -906,11 +905,11 @@ body {
 
 .card-content {
     padding: 30px 20px;
-    border: 2px solid var(--border-color);
+    border: 2px solid #e0e6ed;
     border-radius: 16px;
     text-align: center;
     transition: all 0.3s ease;
-    background: var(--surface);
+    background: white;
 }
 
 .card-icon {
@@ -921,13 +920,13 @@ body {
 
 .card-content h4 {
     font-size: 18px;
-    color: var(--text-primary);
+    color: #2c3e50;
     margin-bottom: 5px;
 }
 
 .card-content p {
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
 }
 
 .activity-card input:checked ~ .card-content,
@@ -960,9 +959,9 @@ body {
     align-items: center;
     gap: 8px;
     padding: 12px 20px;
-    border: 2px solid var(--border-color);
+    border: 2px solid #e0e6ed;
     border-radius: 25px;
-    background: var(--surface);
+    background: white;
     transition: all 0.3s ease;
 }
 
@@ -982,7 +981,7 @@ body {
 
 .input-help {
     font-size: 13px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
     margin-top: 8px;
 }
 
@@ -1002,13 +1001,13 @@ body {
 
 .completion-message h3 {
     font-size: 24px;
-    color: var(--text-primary);
+    color: #2c3e50;
     margin-bottom: 10px;
 }
 
 .completion-message p {
     font-size: 16px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
 }
 
 .step-actions {
@@ -1077,12 +1076,10 @@ input.error {
     animation: float 3s ease-in-out infinite;
     cursor: pointer;
     transition: transform 0.3s ease;
-    filter: drop-shadow(0 0 15px rgba(163, 230, 53, 0.3));
 }
 
 .logo:hover {
     transform: scale(1.1) rotate(5deg);
-    filter: drop-shadow(0 0 25px rgba(163, 230, 53, 0.5));
 }
 
 .brand-logo {
@@ -1105,7 +1102,7 @@ input.error {
     top: 0;
     z-index: 100;
     backdrop-filter: blur(10px);
-    background: rgba(26, 26, 26, 0.95);
+    background: rgba(255, 255, 255, 0.95);
 }
 
 .nav-content {
@@ -1152,7 +1149,7 @@ input.error {
     display: grid;
     grid-template-columns: 1fr 400px;
     gap: 24px;
-    background: var(--surface-light);
+    background: #f8f9fa;
     padding: 20px;
     border-radius: 12px;
 }
@@ -1222,7 +1219,7 @@ input.error {
     padding: 24px;
     border-radius: 16px;
     text-align: center;
-    border: 1px solid var(--border-color);
+    border: 1px solid #e0f2e9;
     transition: all 0.3s ease;
     position: relative;
     overflow: hidden;
@@ -1524,7 +1521,7 @@ input.error {
 }
 
 .nutrition-facts {
-    background: var(--surface-light);
+    background: #f8f9fa;
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 30px;
@@ -1532,7 +1529,7 @@ input.error {
 
 .nutrition-facts h3 {
     margin-bottom: 20px;
-    color: var(--text-primary);
+    color: #2c3e50;
     text-align: center;
 }
 
@@ -1576,7 +1573,7 @@ input.error {
 .nutrition-details {
     display: flex;
     justify-content: space-around;
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid #e0e0e0;
     padding-top: 20px;
 }
 
@@ -1587,7 +1584,7 @@ input.error {
 .detail-label {
     display: block;
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
     margin-bottom: 5px;
 }
 
@@ -1595,7 +1592,7 @@ input.error {
     display: block;
     font-size: 24px;
     font-weight: bold;
-    color: var(--text-primary);
+    color: #2c3e50;
 }
 
 .recipe-section {
@@ -1603,7 +1600,7 @@ input.error {
 }
 
 .recipe-section h3 {
-    color: var(--text-primary);
+    color: #2c3e50;
     margin-bottom: 15px;
 }
 
@@ -1653,11 +1650,11 @@ input.error {
 }
 
 .prep-info span {
-    color: var(--text-secondary);
+    color: #7f8c8d;
 }
 
 .prep-info strong {
-    color: var(--text-primary);
+    color: #2c3e50;
 }
 
 /* Responsive */
@@ -1806,7 +1803,7 @@ input.error {
 
 .auth-footer p {
     margin: 0;
-    color: var(--text-secondary);
+    color: #7f8c8d;
     font-size: 14px;
 }
 
@@ -1910,7 +1907,7 @@ input.error {
 }
 
 .profile-footer p {
-    color: var(--text-secondary);
+    color: #7f8c8d;
     font-size: 14px;
     margin: 0;
 }
@@ -1949,20 +1946,20 @@ input.error {
 .shopping-list-header {
     text-align: center;
     padding: 20px 0;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid #e0e6ed;
     margin-bottom: 20px;
 }
 
 .shopping-date {
     font-size: 18px;
-    color: var(--text-primary);
+    color: #2c3e50;
     font-weight: 600;
     margin: 0;
 }
 
 .shopping-meals {
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
     margin: 5px 0 0;
 }
 
@@ -1998,7 +1995,7 @@ input.error {
     justify-content: space-between;
     align-items: center;
     padding: 12px 15px;
-    background: var(--surface-light);
+    background: #f8f9fa;
     border-radius: 8px;
     transition: all 0.3s ease;
 }
@@ -2009,12 +2006,12 @@ input.error {
 
 .shopping-item.checked {
     opacity: 0.6;
-    background: var(--border-color);
+    background: #e0e6ed;
 }
 
 .shopping-item.checked .item-text {
     text-decoration: line-through;
-    color: var(--text-secondary);
+    color: #7f8c8d;
 }
 
 .item-checkbox {
@@ -2033,13 +2030,13 @@ input.error {
 
 .item-text {
     font-size: 16px;
-    color: var(--text-primary);
+    color: #2c3e50;
 }
 
 .item-meal {
     font-size: 13px;
-    color: var(--text-secondary);
-    background: var(--surface);
+    color: #7f8c8d;
+    background: white;
     padding: 4px 10px;
     border-radius: 15px;
     white-space: nowrap;
@@ -2049,25 +2046,25 @@ input.error {
     display: flex;
     justify-content: space-between;
     padding: 20px;
-    border-top: 2px solid var(--border-color);
+    border-top: 2px solid #e0e6ed;
     margin-top: 20px;
-    background: var(--surface-light);
+    background: #f8f9fa;
 }
 
 .shopping-footer p {
     margin: 0;
     font-size: 14px;
-    color: var(--text-secondary);
+    color: #7f8c8d;
 }
 
 .shopping-footer span {
     font-weight: 600;
-    color: var(--text-primary);
+    color: #2c3e50;
 }
 
 /* EatThisMuch Style Dashboard */
 .meals-section {
-    background: var(--surface);
+    background: white;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -2085,7 +2082,7 @@ input.error {
 .section-header h2 {
     font-size: 24px;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #2c3e50;
     margin: 0;
 }
 
@@ -2112,7 +2109,7 @@ input.error {
     display: flex;
     flex-direction: column;
     background: #fafafa;
-    border: 1px solid var(--border-color);
+    border: 1px solid #e8e8e8;
     border-radius: 8px;
     padding: 16px;
     transition: all 0.2s ease;
@@ -2121,7 +2118,7 @@ input.error {
 
 .meal-item:hover {
     background: #f5f5f5;
-    border-color: var(--border-color);
+    border-color: #ddd;
     transform: translateX(4px);
 }
 
@@ -2186,7 +2183,7 @@ input.error {
 .meal-title {
     font-size: 16px;
     font-weight: 500;
-    color: var(--text-primary);
+    color: #2c3e50;
     margin: 0 0 4px 0;
     cursor: pointer;
     transition: color 0.2s ease;
@@ -2233,7 +2230,7 @@ input.error {
 
 /* Nutrition Section */
 .nutrition-section {
-    background: var(--surface);
+    background: white;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -2281,7 +2278,7 @@ input.error {
 .nutrition-table .value {
     text-align: right;
     font-weight: 600;
-    color: var(--text-primary);
+    color: #2c3e50;
 }
 
 .nutrition-table .target {
@@ -2329,7 +2326,7 @@ input.error {
 
 /* Meal Options Menu */
 .meal-options-menu {
-    background: var(--surface);
+    background: white;
     border-radius: 8px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     border: 1px solid #e0e0e0;
