@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Dashboard - NutriPlan Daily</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #16a34a;
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dashboard Debug Test Page</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Authentication</h2>
+        <button onclick="testLogin()">Test Login</button>
+        <button onclick="checkToken()">Check Token</button>
+        <div id="authResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test API Endpoints</h2>
+        <button onclick="testProfile()">Test Profile API</button>
+        <button onclick="testMealPlan()">Test Meal Plan API</button>
+        <div id="apiResult"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Dashboard Rendering</h2>
+        <button onclick="testDashboardContent()">Test Dashboard Content</button>
+        <div id="dashboardTest"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Console Output</h2>
+        <pre id="console"></pre>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let authToken = localStorage.getItem('authToken');
+
+        function log(message, data = null) {
+            const consoleEl = document.getElementById('console');
+            const timestamp = new Date().toLocaleTimeString();
+            let logMessage = `[${timestamp}] ${message}`;
+            if (data) {
+                logMessage += '\n' + JSON.stringify(data, null, 2);
+            }
+            consoleEl.textContent += logMessage + '\n\n';
+            console.log(message, data);
+        }
+
+        async function testLogin() {
+            const resultDiv = document.getElementById('authResult');
+            try {
+                // Use test credentials
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        email: 'test@example.com',
+                        password: 'password123'
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    localStorage.setItem('authToken', authToken);
+                    resultDiv.innerHTML = '<p class="success">Login successful! Token saved.</p>';
+                    log('Login successful', { user: data.user });
+                } else {
+                    resultDiv.innerHTML = '<p class="error">Login failed: ' + data.error + '</p>';
+                    resultDiv.innerHTML += '<p>Try creating a test account first.</p>';
+                    log('Login failed', data);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<p class="error">Network error: ' + error.message + '</p>';
+                log('Login error', error);
+            }
+        }
+
+        function checkToken() {
+            const resultDiv = document.getElementById('authResult');
+            if (authToken) {
+                resultDiv.innerHTML = '<p class="success">Token exists: ' + authToken.substring(0, 20) + '...</p>';
+                log('Token found', { tokenPrefix: authToken.substring(0, 20) });
+            } else {
+                resultDiv.innerHTML = '<p class="error">No token found. Please login first.</p>';
+                log('No token found');
+            }
+        }
+
+        async function testProfile() {
+            const resultDiv = document.getElementById('apiResult');
+            if (!authToken) {
+                resultDiv.innerHTML = '<p class="error">Please login first!</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/users/profile`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<p class="success">Profile API working!</p>';
+                    resultDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    log('Profile fetched', data);
+                } else {
+                    resultDiv.innerHTML = '<p class="error">Profile API error: ' + data.error + '</p>';
+                    log('Profile error', data);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<p class="error">Network error: ' + error.message + '</p>';
+                log('Profile fetch error', error);
+            }
+        }
+
+        async function testMealPlan() {
+            const resultDiv = document.getElementById('apiResult');
+            if (!authToken) {
+                resultDiv.innerHTML = '<p class="error">Please login first!</p>';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/meals/plan`, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.innerHTML = '<p class="success">Meal Plan API working!</p>';
+                    resultDiv.innerHTML += '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+                    log('Meal plan fetched', data);
+                } else {
+                    resultDiv.innerHTML = '<p class="error">Meal Plan API error: ' + data.error + '</p>';
+                    log('Meal plan error', data);
+                }
+            } catch (error) {
+                resultDiv.innerHTML = '<p class="error">Network error: ' + error.message + '</p>';
+                log('Meal plan fetch error', error);
+            }
+        }
+
+        function testDashboardContent() {
+            const testDiv = document.getElementById('dashboardTest');
+            
+            // Test data
+            const testMealPlan = {
+                breakfast: { id: 1, name: 'Test Breakfast', calories: 350, protein: 20, carbs: 45, fat: 10 },
+                lunch: { id: 2, name: 'Test Lunch', calories: 500, protein: 30, carbs: 50, fat: 20 },
+                dinner: { id: 3, name: 'Test Dinner', calories: 600, protein: 40, carbs: 60, fat: 25 }
+            };
+            
+            const totalNutrition = {
+                calories: 1450,
+                protein: 90,
+                carbs: 155,
+                fat: 55
+            };
+            
+            const dashboardHTML = `
+                <div style="background: white; padding: 20px; border-radius: 8px;">
+                    <h3>Test Dashboard Content</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div style="border: 1px solid #ddd; padding: 10px;">
+                            <h4>Meals</h4>
+                            <p>Breakfast: ${testMealPlan.breakfast.name} (${testMealPlan.breakfast.calories} cal)</p>
+                            <p>Lunch: ${testMealPlan.lunch.name} (${testMealPlan.lunch.calories} cal)</p>
+                            <p>Dinner: ${testMealPlan.dinner.name} (${testMealPlan.dinner.calories} cal)</p>
+                        </div>
+                        <div style="border: 1px solid #ddd; padding: 10px;">
+                            <h4>Nutrition</h4>
+                            <p>Total Calories: ${totalNutrition.calories}</p>
+                            <p>Protein: ${totalNutrition.protein}g</p>
+                            <p>Carbs: ${totalNutrition.carbs}g</p>
+                            <p>Fat: ${totalNutrition.fat}g</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            testDiv.innerHTML = dashboardHTML;
+            log('Test dashboard rendered', { mealPlan: testMealPlan, nutrition: totalNutrition });
+        }
+
+        // Log initial state
+        log('Test page loaded');
+        log('Auth token status', { hasToken: !!authToken });
+    </script>
+</body>
+</html>

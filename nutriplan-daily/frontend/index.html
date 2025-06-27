@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NutriPlan Daily - Your Personal Meal Planner</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <div class="auth-page" id="authContainer">
+            <div class="auth-split-container">
+                <div class="auth-left-panel">
+                    <div class="auth-left-content">
+                        <div class="brand-section">
+                            <svg class="brand-logo" width="120" height="120" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <!-- Tomato body with gradient -->
+                                <defs>
+                                    <radialGradient id="tomatoGradient">
+                                        <stop offset="0%" style="stop-color:#ff7f50;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#ff6347;stop-opacity:1" />
+                                    </radialGradient>
+                                    <filter id="shadow">
+                                        <feDropShadow dx="0" dy="4" stdDeviation="4" flood-opacity="0.3"/>
+                                    </filter>
+                                </defs>
+                                
+                                <circle cx="50" cy="55" r="35" fill="url(#tomatoGradient)" filter="url(#shadow)" />
+                                
+                                <!-- Highlight -->
+                                <ellipse cx="40" cy="45" rx="12" ry="18" fill="#ffa07a" opacity="0.6" />
+                                <ellipse cx="35" cy="40" rx="6" ry="10" fill="#ffb499" opacity="0.4" />
+                                
+                                <!-- Green stem with details -->
+                                <path d="M50 25 Q45 20 40 22 Q42 25 45 25 Q48 22 50 20 Q52 22 55 25 Q58 25 60 22 Q55 20 50 25" fill="#22c55e" />
+                                <path d="M50 20 L50 25" stroke="#16a34a" stroke-width="2" />
+                                
+                                <!-- Seeds pattern -->
+                                <circle cx="45" cy="55" r="1.5" fill="#dc2626" opacity="0.6" />
+                                <circle cx="55" cy="55" r="1.5" fill="#dc2626" opacity="0.6" />
+                                <circle cx="50" cy="62" r="1.5" fill="#dc2626" opacity="0.6" />
+                                <circle cx="50" cy="48" r="1.5" fill="#dc2626" opacity="0.6" />
+                            </svg>
+                            <h1 class="brand-title">NutriPlan Daily</h1>
+                            <p class="brand-tagline">Your journey to healthier eating starts here</p>
+                        </div>
+                        
+                        <div class="features-list">
+                            <div class="feature-item">
+                                <span class="feature-icon">✨</span>
+                                <div>
+                                    <h3>Personalized Meal Plans</h3>
+                                    <p>Get daily meal suggestions tailored to your dietary preferences</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">📊</span>
+                                <div>
+                                    <h3>Nutritional Insights</h3>
+                                    <p>Track calories, proteins, carbs, and fats with visual charts</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">🍳</span>
+                                <div>
+                                    <h3>Detailed Recipes</h3>
+                                    <p>Step-by-step instructions with ingredients and prep time</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="testimonial">
+                            <p>"NutriPlan Daily has transformed how I approach meal planning. It's simple, effective, and delicious!"</p>
+                            <div class="testimonial-author">
+                                <strong>Sarah M.</strong>
+                                <span>Happy User</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="auth-right-panel">
+                    <div class="auth-forms-wrapper">
+                        <div class="form-container" id="loginForm">
+                            <div class="form-header">
+                                <h2>Welcome back</h2>
+                                <p>Enter your credentials to access your account</p>
+                            </div>
+                            
+                            <form id="loginFormElement">
+                                <div class="form-group">
+                                    <label for="loginEmail">Email Address</label>
+                                    <div class="input-wrapper">
+                                        <span class="input-icon">📧</span>
+                                        <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="loginPassword">Password</label>
+                                    <div class="input-wrapper">
+                                        <span class="input-icon">🔒</span>
+                                        <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                                        <button type="button" class="toggle-password" onclick="togglePassword('loginPassword')">
+                                            <span class="eye-icon">👁</span>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="form-options">
+                                    <label class="checkbox-wrapper">
+                                        <input type="checkbox" id="rememberMe">
+                                        <span>Remember me</span>
+                                    </label>
+                                    <a href="#" class="forgot-password">Forgot password?</a>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+                            </form>
+                            
+                            <p class="switch-form">
+                                Don't have an account? 
+                                <a href="#" id="showSignup">Create one</a>
+                            </p>
+                        </div>
+                        
+                        <div class="form-container hidden" id="signupForm">
+                            <div class="form-header">
+                                <h2>Create your account</h2>
+                                <p>Start your journey to healthier eating today</p>
+                            </div>
+                            
+                            <form id="signupFormElement">
+                                <div class="form-group">
+                                    <label for="signupName">Full Name</label>
+                                    <div class="input-wrapper">
+                                        <span class="input-icon">👤</span>
+                                        <input type="text" id="signupName" placeholder="John Doe" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="signupEmail">Email Address</label>
+                                    <div class="input-wrapper">
+                                        <span class="input-icon">📧</span>
+                                        <input type="email" id="signupEmail" placeholder="your@email.com" required>
+                                    </div>
+                                    <span class="input-hint">We'll never share your email</span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="signupPassword">Password</label>
+                                    <div class="input-wrapper">
+                                        <span class="input-icon">🔒</span>
+                                        <input type="password" id="signupPassword" placeholder="Create a strong password" required>
+                                        <button type="button" class="toggle-password" onclick="togglePassword('signupPassword')">
+                                            <span class="eye-icon">👁</span>
+                                        </button>
+                                    </div>
+                                    <div class="password-strength" id="passwordStrength">
+                                        <div class="strength-bar">
+                                            <div class="strength-fill" id="strengthFill"></div>
+                                        </div>
+                                        <span class="strength-text" id="strengthText">Enter a password</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="checkbox-wrapper">
+                                        <input type="checkbox" id="agreeTerms" required>
+                                        <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+                            </form>
+                            
+                            <p class="switch-form">
+                                Already have an account? 
+                                <a href="#" id="showLogin">Sign in</a>
+                            </p>
+                        </div>
+                        
+                        <div class="error-message hidden" id="errorMessage"></div>
+                        <div class="success-message hidden" id="successMessage"></div>
+                    </div>
+                </div>
+            </div>
+            <footer class="auth-footer">
+                <p>&copy; 2025 NutriPlan Daily. Built with ❤️ for Hackathon 2025. All rights reserved.</p>
+                <p class="footer-links">
+                    <a href="#">Privacy Policy</a>
+                    <span class="separator">•</span>
+                    <a href="#">Terms of Service</a>
+                    <span class="separator">•</span>
+                    <a href="#">Contact</a>
+                </p>
+            </footer>
+        </div>
+        
+        <div class="profile-setup-page hidden" id="profileSetupContainer">
+            <div class="profile-setup-wrapper">
+                <div class="profile-header">
+                    <div class="profile-progress">
+                        <div class="progress-steps">
+                            <div class="step active">
+                                <span class="step-number">1</span>
+                                <span class="step-label">Basic Info</span>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">2</span>
+                                <span class="step-label">Lifestyle</span>
+                            </div>
+                            <div class="step">
+                                <span class="step-number">3</span>
+                                <span class="step-label">Preferences</span>
+                            </div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 33%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-intro">
+                        <h1>Let's personalize your experience</h1>
+                        <p>Tell us a bit about yourself to create the perfect meal plan for you</p>
+                    </div>
+                </div>
+                
+                <div class="profile-content">
+                    <form id="profileForm">
+                        <!-- Step 1: Basic Info -->
+                        <div class="form-step active" id="step1">
+                            <div class="step-header">
+                                <span class="step-icon">👤</span>
+                                <h2>Basic Information</h2>
+                                <p>Let's start with some basic details about you</p>
+                            </div>
+                            
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="age">
+                                        <span class="label-icon">🎂</span>
+                                        Your Age
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input type="number" id="age" min="1" max="120" placeholder="25" required>
+                                        <span class="input-suffix">years</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="gender">
+                                        <span class="label-icon">⚧</span>
+                                        Gender
+                                    </label>
+                                    <div class="radio-group">
+                                        <label class="radio-option">
+                                            <input type="radio" name="gender" value="male" required>
+                                            <span class="radio-design"></span>
+                                            <span class="radio-label">Male</span>
+                                        </label>
+                                        <label class="radio-option">
+                                            <input type="radio" name="gender" value="female" required>
+                                            <span class="radio-design"></span>
+                                            <span class="radio-label">Female</span>
+                                        </label>
+                                        <label class="radio-option">
+                                            <input type="radio" name="gender" value="other" required>
+                                            <span class="radio-design"></span>
+                                            <span class="radio-label">Other</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="height">
+                                        <span class="label-icon">📏</span>
+                                        Height
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input type="number" id="height" min="50" max="300" placeholder="170" required>
+                                        <span class="input-suffix">cm</span>
+                                    </div>
+                                    <div class="unit-toggle">
+                                        <button type="button" class="unit-btn active" onclick="toggleHeightUnit('cm')">cm</button>
+                                        <button type="button" class="unit-btn" onclick="toggleHeightUnit('ft')">ft/in</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="weight">
+                                        <span class="label-icon">⚖️</span>
+                                        Weight
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input type="number" id="weight" min="20" max="500" step="0.1" placeholder="70" required>
+                                        <span class="input-suffix">kg</span>
+                                    </div>
+                                    <div class="unit-toggle">
+                                        <button type="button" class="unit-btn active" onclick="toggleWeightUnit('kg')">kg</button>
+                                        <button type="button" class="unit-btn" onclick="toggleWeightUnit('lbs')">lbs</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="step-actions">
+                                <button type="button" class="btn btn-primary" onclick="nextStep(1)">
+                                    Continue
+                                    <span class="btn-icon">→</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: Lifestyle -->
+                        <div class="form-step" id="step2">
+                            <div class="step-header">
+                                <span class="step-icon">🏃‍♂️</span>
+                                <h2>Your Lifestyle</h2>
+                                <p>Help us understand your daily routine and goals</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>
+                                    <span class="label-icon">💪</span>
+                                    How active are you?
+                                </label>
+                                <div class="activity-cards">
+                                    <label class="activity-card">
+                                        <input type="radio" name="activityLevel" value="sedentary" required>
+                                        <div class="card-content">
+                                            <span class="card-icon">🪑</span>
+                                            <h4>Sedentary</h4>
+                                            <p>Little or no exercise</p>
+                                        </div>
+                                    </label>
+                                    <label class="activity-card">
+                                        <input type="radio" name="activityLevel" value="moderate" required>
+                                        <div class="card-content">
+                                            <span class="card-icon">🚶‍♂️</span>
+                                            <h4>Moderate</h4>
+                                            <p>Exercise 3-5 days/week</p>
+                                        </div>
+                                    </label>
+                                    <label class="activity-card">
+                                        <input type="radio" name="activityLevel" value="active" required>
+                                        <div class="card-content">
+                                            <span class="card-icon">🏃‍♂️</span>
+                                            <h4>Active</h4>
+                                            <p>Exercise 6-7 days/week</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>
+                                    <span class="label-icon">🎯</span>
+                                    What's your goal?
+                                </label>
+                                <div class="goal-cards">
+                                    <label class="goal-card">
+                                        <input type="radio" name="caloricGoal" value="lose" required>
+                                        <div class="card-content">
+                                            <span class="card-icon">📉</span>
+                                            <h4>Lose Weight</h4>
+                                            <p>Create a calorie deficit</p>
+                                        </div>
+                                    </label>
+                                    <label class="goal-card">
+                                        <input type="radio" name="caloricGoal" value="maintain" required>
+                                        <div class="card-content">
+                                            <span class="card-icon">⚖️</span>
+                                            <h4>Maintain Weight</h4>
+                                            <p>Stay at current weight</p>
+                                        </div>
+                                    </label>
+                                    <label class="goal-card">
+                                        <input type="radio" name="caloricGoal" value="gain" required>
+                                        <div class="card-content">
+                                            <span class="card-icon">📈</span>
+                                            <h4>Gain Weight</h4>
+                                            <p>Build muscle mass</p>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="step-actions">
+                                <button type="button" class="btn btn-secondary" onclick="prevStep(2)">
+                                    <span class="btn-icon">←</span>
+                                    Back
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="nextStep(2)">
+                                    Continue
+                                    <span class="btn-icon">→</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 3: Preferences -->
+                        <div class="form-step" id="step3">
+                            <div class="step-header">
+                                <span class="step-icon">🥗</span>
+                                <h2>Dietary Preferences</h2>
+                                <p>Select all that apply to customize your meal plans</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>
+                                    <span class="label-icon">🌱</span>
+                                    Dietary Preferences
+                                </label>
+                                <div class="preference-tags">
+                                    <label class="preference-tag">
+                                        <input type="checkbox" name="dietaryPreferences" value="vegetarian">
+                                        <span class="tag-content">
+                                            <span class="tag-icon">🥬</span>
+                                            Vegetarian
+                                        </span>
+                                    </label>
+                                    <label class="preference-tag">
+                                        <input type="checkbox" name="dietaryPreferences" value="vegan">
+                                        <span class="tag-content">
+                                            <span class="tag-icon">🌱</span>
+                                            Vegan
+                                        </span>
+                                    </label>
+                                    <label class="preference-tag">
+                                        <input type="checkbox" name="dietaryPreferences" value="gluten-free">
+                                        <span class="tag-content">
+                                            <span class="tag-icon">🌾</span>
+                                            Gluten-Free
+                                        </span>
+                                    </label>
+                                    <label class="preference-tag">
+                                        <input type="checkbox" name="dietaryPreferences" value="dairy-free">
+                                        <span class="tag-content">
+                                            <span class="tag-icon">🥛</span>
+                                            Dairy-Free
+                                        </span>
+                                    </label>
+                                    <label class="preference-tag">
+                                        <input type="checkbox" name="dietaryPreferences" value="low-carb">
+                                        <span class="tag-content">
+                                            <span class="tag-icon">🍞</span>
+                                            Low Carb
+                                        </span>
+                                    </label>
+                                    <label class="preference-tag">
+                                        <input type="checkbox" name="dietaryPreferences" value="high-protein">
+                                        <span class="tag-content">
+                                            <span class="tag-icon">💪</span>
+                                            High Protein
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="allergies">
+                                    <span class="label-icon">⚠️</span>
+                                    Allergies or Intolerances
+                                </label>
+                                <div class="allergy-input">
+                                    <input type="text" id="allergies" placeholder="e.g., nuts, shellfish, lactose">
+                                    <p class="input-help">Separate multiple allergies with commas</p>
+                                </div>
+                            </div>
+                            
+                            <div class="completion-message">
+                                <span class="completion-icon">🎉</span>
+                                <h3>You're all set!</h3>
+                                <p>We'll create personalized meal plans based on your preferences</p>
+                            </div>
+                            
+                            <div class="step-actions">
+                                <button type="button" class="btn btn-secondary" onclick="prevStep(3)">
+                                    <span class="btn-icon">←</span>
+                                    Back
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-complete">
+                                    Start My Journey
+                                    <span class="btn-icon">✨</span>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <footer class="profile-footer">
+                <p>&copy; 2025 NutriPlan Daily • Hackathon 2025 Project</p>
+            </footer>
+        </div>
+        
+        <div class="hidden" id="dashboardContainer">
+            <nav class="navbar">
+                <div class="nav-content">
+                    <div class="logo-container">
+                        <svg class="logo" width="40" height="40" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Tomato body -->
+                            <circle cx="50" cy="55" r="35" fill="#ff6347" />
+                            <circle cx="50" cy="55" r="33" fill="#ff7f50" opacity="0.8" />
+                            
+                            <!-- Highlight -->
+                            <ellipse cx="40" cy="45" rx="12" ry="18" fill="#ffa07a" opacity="0.6" />
+                            
+                            <!-- Green stem -->
+                            <path d="M50 25 Q45 20 40 22 Q42 25 45 25 Q48 22 50 20 Q52 22 55 25 Q58 25 60 22 Q55 20 50 25" fill="#22c55e" />
+                            
+                            <!-- Leaf detail -->
+                            <circle cx="50" cy="20" r="3" fill="#16a34a" />
+                        </svg>
+                        <h1>NutriPlan Daily</h1>
+                    </div>
+                    <div class="nav-links">
+                        <span id="userName"></span>
+                        <button class="btn btn-secondary" id="logoutBtn">Logout</button>
+                    </div>
+                </div>
+            </nav>
+            
+            <div class="dashboard" id="dashboard">
+                <!-- Dashboard content will be loaded here -->
+            </div>
+            
+            <footer class="dashboard-footer">
+                <div class="footer-content">
+                    <div class="footer-section">
+                        <h4>NutriPlan Daily</h4>
+                        <p>Your personal nutrition companion for healthier living.</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Hackathon 2025</h4>
+                        <p>Proudly built for innovation and impact.</p>
+                    </div>
+                    <div class="footer-section">
+                        <h4>Connect</h4>
+                        <p class="social-links">
+                            <a href="#" title="GitHub">💻</a>
+                            <a href="#" title="LinkedIn">💼</a>
+                            <a href="#" title="Twitter">🐦</a>
+                        </p>
+                    </div>
+                </div>
+                <div class="footer-bottom">
+                    <p>&copy; 2025 NutriPlan Daily. All rights reserved. Made with ❤️ and ☕ during Hackathon 2025.</p>
+                </div>
+            </footer>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
