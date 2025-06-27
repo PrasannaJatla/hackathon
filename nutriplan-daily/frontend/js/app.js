@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:3000/api';
+const API_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3000/api' 
+    : `${window.location.protocol}//${window.location.host}/api`;
 let authToken = localStorage.getItem('authToken');
 let currentUser = null;
 
@@ -851,9 +853,12 @@ async function regenerateMealPlan() {
             
             showSuccess('New meal plan generated!');
         } else {
-            showError('Failed to generate new meal plan. Please try again.');
+            const errorData = await response.json().catch(() => ({}));
+            console.error('Regenerate failed:', response.status, errorData);
+            showError(`Failed to generate new meal plan: ${errorData.error || 'Please try again.'}`);
         }
     } catch (error) {
+        console.error('Regenerate error:', error);
         showError('Network error. Please try again.');
     } finally {
         regenerateBtn.disabled = false;
