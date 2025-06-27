@@ -250,6 +250,24 @@ body {
     }
 }
 
+.auth-logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.auth-logo .logo {
+    animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
 .form-header {
     text-align: center;
     margin-bottom: 40px;
@@ -1056,6 +1074,12 @@ input.error {
 
 .logo {
     animation: float 3s ease-in-out infinite;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.logo:hover {
+    transform: scale(1.1) rotate(5deg);
 }
 
 .brand-logo {
@@ -1696,6 +1720,16 @@ input.error {
     .nav-content {
         flex-direction: column;
         gap: 15px;
+    }
+    
+    .logo {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .auth-logo .logo {
+        width: 50px;
+        height: 50px;
     }
     
     .meal-content {
