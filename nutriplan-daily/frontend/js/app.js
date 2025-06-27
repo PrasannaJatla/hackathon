@@ -505,8 +505,19 @@ function renderMealItem(mealType, meal, mealClass) {
     const mealName = meal.name || 'Unknown Meal';
     const mealCalories = meal.calories || 0;
     const mealImage = meal.image_url || '';
+    const dietaryTags = meal.dietary_tags || '';
     
     console.log(`Meal ${mealType} details: id=${mealId}, name=${mealName}, calories=${mealCalories}`);
+    
+    // Create dietary badges
+    let dietaryBadges = '';
+    if (dietaryTags) {
+        const tags = dietaryTags.split(',').filter(tag => tag.trim());
+        dietaryBadges = tags.map(tag => {
+            const tagClass = tag.trim().toLowerCase().replace(/\s+/g, '-');
+            return `<span class="dietary-badge ${tagClass}">${tag.trim()}</span>`;
+        }).join('');
+    }
     
     return `
         <div class="meal-item ${mealClass}" data-meal-id="${mealId}" data-meal-type="${mealType.toLowerCase()}">
@@ -523,6 +534,7 @@ function renderMealItem(mealType, meal, mealClass) {
                 <div class="meal-details">
                     <h4 class="meal-title" onclick="viewMealDetails(${mealId})">${mealName}</h4>
                     <p class="meal-serving">1 serving</p>
+                    ${dietaryBadges ? `<div class="dietary-badges">${dietaryBadges}</div>` : ''}
                 </div>
                 <button class="meal-options-btn" onclick="showMealOptions(${mealId}, event, '${mealType.toLowerCase()}')">⋮</button>
             </div>

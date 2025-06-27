@@ -219,36 +219,84 @@ class SpoonacularService {
     };
   }
 
-  // Convert dietary preferences to Spoonacular format
-  static mapDietaryPreferences(preferences) {
+  // Convert dietary preferences and allergies to Spoonacular format
+  static mapDietaryPreferences(preferences, allergies = '') {
     const dietMap = {
       'vegetarian': 'vegetarian',
       'vegan': 'vegan',
       'gluten-free': 'gluten free',
       'dairy-free': 'dairy free',
       'low-carb': 'ketogenic',
-      'high-protein': 'primal'
+      'high-protein': 'primal',
+      'paleo': 'paleo',
+      'pescetarian': 'pescetarian',
+      'lacto-vegetarian': 'lacto vegetarian',
+      'ovo-vegetarian': 'ovo vegetarian',
+      'whole30': 'whole30',
+      'primal': 'primal',
+      'keto': 'ketogenic',
+      'mediterranean': 'mediterranean',
+      'anything': ''
+    };
+
+    // Common allergy/intolerance mappings
+    const allergyMap = {
+      'nuts': 'tree nut',
+      'tree nuts': 'tree nut',
+      'peanuts': 'peanut',
+      'peanut': 'peanut',
+      'shellfish': 'shellfish',
+      'fish': 'seafood',
+      'seafood': 'seafood',
+      'dairy': 'dairy',
+      'milk': 'dairy',
+      'lactose': 'dairy',
+      'eggs': 'egg',
+      'egg': 'egg',
+      'soy': 'soy',
+      'gluten': 'gluten',
+      'wheat': 'wheat',
+      'sesame': 'sesame',
+      'sulfite': 'sulfite',
+      'grain': 'grain'
     };
 
     const diets = [];
     const intolerances = [];
 
+    // Process dietary preferences
     if (preferences) {
-      const prefs = preferences.split(',').map(p => p.trim());
+      const prefs = preferences.split(',').map(p => p.trim().toLowerCase());
       
       prefs.forEach(pref => {
         if (dietMap[pref]) {
+          // Handle dietary types that are intolerances
           if (pref.includes('free')) {
             intolerances.push(pref.split('-')[0]);
-          } else {
+          } else if (dietMap[pref]) {
             diets.push(dietMap[pref]);
           }
         }
       });
     }
 
+    // Process allergies
+    if (allergies) {
+      const allergyList = allergies.split(',').map(a => a.trim().toLowerCase());
+      
+      allergyList.forEach(allergy => {
+        const mappedAllergy = allergyMap[allergy];
+        if (mappedAllergy && !intolerances.includes(mappedAllergy)) {
+          intolerances.push(mappedAllergy);
+        } else if (!intolerances.includes(allergy)) {
+          // Add as-is if no mapping found
+          intolerances.push(allergy);
+        }
+      });
+    }
+
     return {
-      diet: diets.join(','),
+      diet: diets.filter(d => d).join(','), // Filter out empty strings
       intolerances: intolerances.join(',')
     };
   }

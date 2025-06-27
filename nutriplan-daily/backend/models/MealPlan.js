@@ -21,7 +21,12 @@ class MealPlan {
 
         if (process.env.SPOONACULAR_API_KEY && process.env.SPOONACULAR_API_KEY !== 'your-spoonacular-api-key-here') {
           // Use Spoonacular API
-          const { diet, intolerances } = SpoonacularService.mapDietaryPreferences(preferences.dietary_preferences);
+          const { diet, intolerances } = SpoonacularService.mapDietaryPreferences(preferences.dietary_preferences, preferences.allergies);
+          
+          console.log('Dietary preferences:', preferences.dietary_preferences);
+          console.log('Allergies:', preferences.allergies);
+          console.log('Mapped diet:', diet);
+          console.log('Mapped intolerances:', intolerances);
           
           // Clear cache on force new to get fresh recipes
           if (forceNew) {
@@ -149,11 +154,32 @@ class MealPlan {
         params.push(userId, userId, userId);
       }
 
+      // Apply dietary preferences
       if (preferences && preferences.dietary_preferences) {
-        const prefs = preferences.dietary_preferences.split(',');
-        const dietQuery = prefs.map(() => 'dietary_tags LIKE ?').join(' OR ');
-        query += ` AND (${dietQuery})`;
-        prefs.forEach(pref => params.push(`%${pref.trim()}%`));
+        const prefs = preferences.dietary_preferences.split(',').map(p => p.trim());
+        
+        // For specific diets, include matching dietary tags
+        const includeTags = prefs.filter(pref => pref !== 'anything');
+        if (includeTags.length > 0) {
+          const dietQuery = includeTags.map(() => 'dietary_tags LIKE ?').join(' OR ');
+          query += ` AND (${dietQuery})`;
+          includeTags.forEach(pref => params.push(`%${pref}%`));
+        }
+      }
+
+      // Exclude meals with allergens
+      if (preferences && preferences.allergies) {
+        const allergies = preferences.allergies.split(',').map(a => a.trim().toLowerCase());
+        
+        // For each allergy, exclude meals that might contain it
+        // This is a simple text search in ingredients
+        allergies.forEach(allergy => {
+          query += ` AND id NOT IN (
+            SELECT meal_id FROM recipes 
+            WHERE LOWER(ingredients) LIKE ?
+          )`;
+          params.push(`%${allergy}%`);
+        });
       }
 
       query += ' ORDER BY RANDOM() LIMIT 1';
@@ -171,11 +197,14 @@ class MealPlan {
         SELECT 
           p.*,
           b.id as breakfast_id, b.name as breakfast_name, b.calories as breakfast_calories, 
-          b.protein as breakfast_protein, b.carbs as breakfast_carbs, b.fat as breakfast_fat, b.image_url as breakfast_image_url,
+          b.protein as breakfast_protein, b.carbs as breakfast_carbs, b.fat as breakfast_fat, 
+          b.image_url as breakfast_image_url, b.dietary_tags as breakfast_dietary_tags,
           l.id as lunch_id, l.name as lunch_name, l.calories as lunch_calories,
-          l.protein as lunch_protein, l.carbs as lunch_carbs, l.fat as lunch_fat, l.image_url as lunch_image_url,
+          l.protein as lunch_protein, l.carbs as lunch_carbs, l.fat as lunch_fat, 
+          l.image_url as lunch_image_url, l.dietary_tags as lunch_dietary_tags,
           d.id as dinner_id, d.name as dinner_name, d.calories as dinner_calories,
-          d.protein as dinner_protein, d.carbs as dinner_carbs, d.fat as dinner_fat, d.image_url as dinner_image_url
+          d.protein as dinner_protein, d.carbs as dinner_carbs, d.fat as dinner_fat, 
+          d.image_url as dinner_image_url, d.dietary_tags as dinner_dietary_tags
         FROM user_meal_plans p
         JOIN meals b ON p.breakfast_id = b.id
         JOIN meals l ON p.lunch_id = l.id
@@ -195,7 +224,8 @@ class MealPlan {
               protein: row.breakfast_protein,
               carbs: row.breakfast_carbs,
               fat: row.breakfast_fat,
-              image_url: row.breakfast_image_url
+              image_url: row.breakfast_image_url,
+              dietary_tags: row.breakfast_dietary_tags
             },
             lunch: {
               id: row.lunch_id,
@@ -204,7 +234,8 @@ class MealPlan {
               protein: row.lunch_protein,
               carbs: row.lunch_carbs,
               fat: row.lunch_fat,
-              image_url: row.lunch_image_url
+              image_url: row.lunch_image_url,
+              dietary_tags: row.lunch_dietary_tags
             },
             dinner: {
               id: row.dinner_id,
@@ -213,7 +244,8 @@ class MealPlan {
               protein: row.dinner_protein,
               carbs: row.dinner_carbs,
               fat: row.dinner_fat,
-              image_url: row.dinner_image_url
+              image_url: row.dinner_image_url,
+              dietary_tags: row.dinner_dietary_tags
             }
           });
         } else {
@@ -257,7 +289,7 @@ class MealPlan {
     try {
       // Try to get from API first
       if (process.env.SPOONACULAR_API_KEY && process.env.SPOONACULAR_API_KEY !== 'your-spoonacular-api-key-here') {
-        const { diet, intolerances } = SpoonacularService.mapDietaryPreferences(preferences.dietary_preferences);
+        const { diet, intolerances } = SpoonacularService.mapDietaryPreferences(preferences.dietary_preferences, preferences.allergies);
         
         let recipeType = mealType === 'breakfast' ? 'breakfast' : 'main course';
         if (mealType === 'lunch') {

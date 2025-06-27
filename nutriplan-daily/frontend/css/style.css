@@ -2207,6 +2207,75 @@ input.error {
     margin: 0;
 }
 
+/* Dietary badges */
+.dietary-badges {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+}
+
+.dietary-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.dietary-badge.vegetarian {
+    background: #4caf50;
+    color: white;
+}
+
+.dietary-badge.vegan {
+    background: #2e7d32;
+    color: white;
+}
+
+.dietary-badge.gluten-free {
+    background: #ff9800;
+    color: white;
+}
+
+.dietary-badge.dairy-free {
+    background: #03a9f4;
+    color: white;
+}
+
+.dietary-badge.keto,
+.dietary-badge.ketogenic {
+    background: #e91e63;
+    color: white;
+}
+
+.dietary-badge.paleo {
+    background: #795548;
+    color: white;
+}
+
+.dietary-badge.low-carb {
+    background: #9c27b0;
+    color: white;
+}
+
+.dietary-badge.high-protein {
+    background: #f44336;
+    color: white;
+}
+
+.dietary-badge.mediterranean {
+    background: #00bcd4;
+    color: white;
+}
+
+.dietary-badge.low-fodmap {
+    background: #607d8b;
+    color: white;
+}
+
 .meal-options-btn {
     background: none;
     border: none;
