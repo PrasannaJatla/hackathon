@@ -28,6 +28,9 @@ const getMealPlan = async (req, res) => {
       return res.status(500).json({ error: 'Failed to generate meal plan' });
     }
     
+    // Get regeneration count
+    const regenerationCount = await User.getRegenerationCount(req.userId);
+    
     console.log('Meal plan generated:', {
       breakfast: mealPlan.breakfast?.name,
       lunch: mealPlan.lunch?.name,
@@ -43,7 +46,9 @@ const getMealPlan = async (req, res) => {
 
     res.json({
       mealPlan,
-      totalNutrition
+      totalNutrition,
+      regenerationCount,
+      regenerationLimit: 3
     });
   } catch (error) {
     console.error('Get meal plan error:', error.message);
@@ -77,6 +82,13 @@ const getAllMeals = async (req, res) => {
 
 const regenerateMealPlan = async (req, res) => {
   try {
+    // Check regeneration count
+    const regenerationCount = await User.getRegenerationCount(req.userId);
+    
+    if (regenerationCount >= 3) {
+      return res.status(403).json({ error: 'You have reached your regeneration limit' });
+    }
+    
     const user = await User.findById(req.userId);
     const preferences = {
       dietary_preferences: user.dietary_preferences,
@@ -90,6 +102,9 @@ const regenerateMealPlan = async (req, res) => {
     // Generate new meal plan with forceNew flag
     const mealPlan = await MealPlan.generateForUser(req.userId, preferences, true);
     
+    // Increment regeneration count
+    await User.incrementRegenerationCount(req.userId);
+    
     const totalNutrition = {
       calories: (mealPlan.breakfast.calories || 0) + (mealPlan.lunch.calories || 0) + (mealPlan.dinner.calories || 0),
       protein: (mealPlan.breakfast.protein || 0) + (mealPlan.lunch.protein || 0) + (mealPlan.dinner.protein || 0),
@@ -99,7 +114,9 @@ const regenerateMealPlan = async (req, res) => {
 
     res.json({
       mealPlan,
-      totalNutrition
+      totalNutrition,
+      regenerationCount: regenerationCount + 1,
+      regenerationLimit: 3
     });
   } catch (error) {
     console.error('Regenerate meal plan error:', error);

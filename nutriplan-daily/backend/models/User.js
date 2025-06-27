@@ -34,9 +34,27 @@ class User {
 
   static findById(id) {
     return new Promise((resolve, reject) => {
-      db.get('SELECT id, email, name, age, gender, height, weight, activity_level, dietary_preferences, allergies, caloric_goal FROM users WHERE id = ?', [id], (err, row) => {
+      db.get('SELECT id, email, name, age, gender, height, weight, activity_level, dietary_preferences, allergies, caloric_goal, regeneration_count FROM users WHERE id = ?', [id], (err, row) => {
         if (err) reject(err);
         else resolve(row);
+      });
+    });
+  }
+  
+  static incrementRegenerationCount(id) {
+    return new Promise((resolve, reject) => {
+      db.run('UPDATE users SET regeneration_count = regeneration_count + 1 WHERE id = ?', [id], function(err) {
+        if (err) reject(err);
+        else resolve(this.changes);
+      });
+    });
+  }
+  
+  static getRegenerationCount(id) {
+    return new Promise((resolve, reject) => {
+      db.get('SELECT regeneration_count FROM users WHERE id = ?', [id], (err, row) => {
+        if (err) reject(err);
+        else resolve(row ? row.regeneration_count : 0);
       });
     });
   }

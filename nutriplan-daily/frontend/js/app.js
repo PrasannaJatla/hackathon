@@ -464,10 +464,11 @@ async function loadDashboard() {
             throw new Error(`Meal plan fetch failed: ${mealPlanResponse.status}`);
         }
         
-        const { mealPlan, totalNutrition } = await mealPlanResponse.json();
+        const { mealPlan, totalNutrition, regenerationCount, regenerationLimit } = await mealPlanResponse.json();
         
         console.log('Meal plan loaded:', mealPlan);
         console.log('Total nutrition:', totalNutrition);
+        console.log('Regeneration count:', regenerationCount, '/', regenerationLimit);
         
         // Check if dashboard element exists
         const dashboardElement = document.getElementById('dashboard');
@@ -477,7 +478,7 @@ async function loadDashboard() {
         }
         
         console.log('Calling renderDashboard...');
-        renderDashboard(mealPlan, totalNutrition);
+        renderDashboard(mealPlan, totalNutrition, regenerationCount, regenerationLimit);
     } catch (error) {
         console.error('Dashboard error:', error);
         showError('Failed to load dashboard: ' + error.message);
@@ -840,14 +841,14 @@ async function regenerateMealPlan() {
         });
         
         if (response.ok) {
-            const { mealPlan, totalNutrition } = await response.json();
+            const { mealPlan, totalNutrition, regenerationCount, regenerationLimit } = await response.json();
             
             // Update the dashboard with animation
             const dashboard = document.getElementById('dashboard');
             dashboard.style.opacity = '0';
             
             setTimeout(() => {
-                renderDashboard(mealPlan, totalNutrition);
+                renderDashboard(mealPlan, totalNutrition, regenerationCount || 0, regenerationLimit || 3);
                 dashboard.style.opacity = '1';
             }, 300);
             
@@ -855,7 +856,12 @@ async function regenerateMealPlan() {
         } else {
             const errorData = await response.json().catch(() => ({}));
             console.error('Regenerate failed:', response.status, errorData);
-            showError(`Failed to generate new meal plan: ${errorData.error || 'Please try again.'}`);
+            
+            if (response.status === 403 && errorData.error === 'You have reached your regeneration limit') {
+                showError('You have reached your regeneration limit');
+            } else {
+                showError(`Failed to generate new meal plan: ${errorData.error || 'Please try again.'}`);
+            }
         }
     } catch (error) {
         console.error('Regenerate error:', error);
@@ -1022,8 +1028,8 @@ function printShoppingList() {
 }
 
 // Store meal plan when loading dashboard
-function renderDashboard(mealPlan, totalNutrition) {
-    console.log('renderDashboard called with:', { mealPlan, totalNutrition });
+function renderDashboard(mealPlan, totalNutrition, regenerationCount = 0, regenerationLimit = 3) {
+    console.log('renderDashboard called with:', { mealPlan, totalNutrition, regenerationCount, regenerationLimit });
     
     // Validate input data
     if (!mealPlan || !totalNutrition) {
@@ -1083,8 +1089,8 @@ function renderDashboard(mealPlan, totalNutrition) {
                 </div>
                 
                 <div class="meal-actions">
-                    <button id="regenerateBtn" class="btn btn-secondary compact" onclick="regenerateMealPlan()">
-                        <span class="btn-icon">🔄</span> Regenerate
+                    <button id="regenerateBtn" class="btn btn-secondary compact" onclick="regenerateMealPlan()" ${regenerationCount >= regenerationLimit ? 'disabled' : ''}>
+                        <span class="btn-icon">🔄</span> Regenerate ${regenerationCount < regenerationLimit ? `(${regenerationLimit - regenerationCount} left)` : '(Limit reached)'}
                     </button>
                     <button class="btn btn-primary compact" onclick="showShoppingList()">
                         <span class="btn-icon">🛒</span> Shopping List
