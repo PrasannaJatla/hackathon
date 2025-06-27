@@ -1078,7 +1078,7 @@ function renderDashboard(mealPlan, totalNutrition) {
                 </div>
                 
                 <div class="meal-actions">
-                    <button class="btn btn-secondary compact" onclick="regenerateMealPlan()">
+                    <button id="regenerateBtn" class="btn btn-secondary compact" onclick="regenerateMealPlan()">
                         <span class="btn-icon">🔄</span> Regenerate
                     </button>
                     <button class="btn btn-primary compact" onclick="showShoppingList()">
