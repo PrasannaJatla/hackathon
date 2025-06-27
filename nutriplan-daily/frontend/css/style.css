@@ -1117,6 +1117,7 @@ input.error {
     margin: 0 auto;
     padding: 20px;
     min-height: 400px; /* Ensure minimum height */
+    transition: opacity 0.3s ease;
 }
 
 /* Dashboard Layout */

@@ -842,13 +842,13 @@ async function regenerateMealPlan() {
         if (response.ok) {
             const { mealPlan, totalNutrition } = await response.json();
             
-            // Update only the meals grid with animation
-            const mealsGrid = document.getElementById('mealsGrid');
-            mealsGrid.style.opacity = '0';
+            // Update the dashboard with animation
+            const dashboard = document.getElementById('dashboard');
+            dashboard.style.opacity = '0';
             
             setTimeout(() => {
                 renderDashboard(mealPlan, totalNutrition);
-                mealsGrid.style.opacity = '1';
+                dashboard.style.opacity = '1';
             }, 300);
             
             showSuccess('New meal plan generated!');
