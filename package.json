@@ -1,0 +1,13 @@
+{
+  "name": "nutriplan-daily",
+  "version": "1.0.0",
+  "description": "Daily Meal Planner Application",
+  "scripts": {
+    "start": "cd nutriplan-daily && npm start",
+    "install": "cd nutriplan-daily && npm install",
+    "build": "cd nutriplan-daily && npm install"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
