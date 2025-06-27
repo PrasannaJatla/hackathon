@@ -124,4 +124,41 @@ const regenerateMealPlan = async (req, res) => {
   }
 };
 
-module.exports = { getMealPlan, getMealById, getAllMeals, regenerateMealPlan };
+const replaceSingleMeal = async (req, res) => {
+  try {
+    const { mealId, mealType } = req.body;
+    
+    if (!mealId || !mealType) {
+      return res.status(400).json({ error: 'Meal ID and type are required' });
+    }
+    
+    // Validate meal type
+    if (!['breakfast', 'lunch', 'dinner'].includes(mealType)) {
+      return res.status(400).json({ error: 'Invalid meal type' });
+    }
+    
+    const user = await User.findById(req.userId);
+    const preferences = {
+      dietary_preferences: user.dietary_preferences,
+      allergies: user.allergies
+    };
+    
+    // Get a new meal of the same type
+    const newMeal = await MealPlan.getReplacementMeal(mealType, preferences, req.userId);
+    
+    if (!newMeal) {
+      return res.status(404).json({ error: 'No replacement meal available' });
+    }
+    
+    // Update the meal plan
+    const today = new Date().toISOString().split('T')[0];
+    await MealPlan.updateSingleMeal(req.userId, today, mealType, newMeal.id);
+    
+    res.json({ newMeal });
+  } catch (error) {
+    console.error('Replace single meal error:', error);
+    res.status(500).json({ error: 'Error replacing meal' });
+  }
+};
+
+module.exports = { getMealPlan, getMealById, getAllMeals, regenerateMealPlan, replaceSingleMeal };

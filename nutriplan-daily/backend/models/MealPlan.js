@@ -134,12 +134,22 @@ class MealPlan {
     });
   }
 
-  static getRandomMealByType(mealType, preferences) {
+  static getRandomMealByType(mealType, preferences, userId = null) {
     return new Promise((resolve, reject) => {
       let query = 'SELECT * FROM meals WHERE meal_type = ?';
       const params = [mealType];
 
-      if (preferences.dietary_preferences) {
+      // Exclude current meals if userId provided
+      if (userId) {
+        query += ` AND id NOT IN (
+          SELECT breakfast_id FROM user_meal_plans WHERE user_id = ? AND date = date('now')
+          UNION SELECT lunch_id FROM user_meal_plans WHERE user_id = ? AND date = date('now')
+          UNION SELECT dinner_id FROM user_meal_plans WHERE user_id = ? AND date = date('now')
+        )`;
+        params.push(userId, userId, userId);
+      }
+
+      if (preferences && preferences.dietary_preferences) {
         const prefs = preferences.dietary_preferences.split(',');
         const dietQuery = prefs.map(() => 'dietary_tags LIKE ?').join(' OR ');
         query += ` AND (${dietQuery})`;
@@ -240,6 +250,65 @@ class MealPlan {
         if (err) reject(err);
         else resolve(rows.map(row => row.spoonacular_id));
       });
+    });
+  }
+
+  static async getReplacementMeal(mealType, preferences, userId) {
+    try {
+      // Try to get from API first
+      if (process.env.SPOONACULAR_API_KEY && process.env.SPOONACULAR_API_KEY !== 'your-spoonacular-api-key-here') {
+        const { diet, intolerances } = SpoonacularService.mapDietaryPreferences(preferences.dietary_preferences);
+        
+        let recipeType = mealType === 'breakfast' ? 'breakfast' : 'main course';
+        if (mealType === 'lunch') {
+          recipeType = 'main course,salad';
+        }
+        
+        const recipes = await SpoonacularService.getRandomRecipes(recipeType, diet, intolerances, 10, true);
+        
+        if (recipes.length > 0) {
+          // Get current meal IDs to avoid duplicates
+          const today = new Date().toISOString().split('T')[0];
+          const currentPlan = await this.findByUserAndDate(userId, today);
+          const currentMealIds = [];
+          
+          if (currentPlan) {
+            currentMealIds.push(currentPlan.breakfast.id, currentPlan.lunch.id, currentPlan.dinner.id);
+          }
+          
+          // Find a recipe that's not already in today's plan
+          const availableRecipes = recipes.filter(recipe => {
+            return !currentMealIds.includes(recipe.spoonacular_id);
+          });
+          
+          if (availableRecipes.length > 0) {
+            const randomIndex = Math.floor(Math.random() * availableRecipes.length);
+            return await this.saveAndGetMeal(availableRecipes[randomIndex], mealType);
+          }
+        }
+      }
+      
+      // Fallback to database
+      return await this.getRandomMealByType(mealType, preferences, userId);
+    } catch (error) {
+      console.error('Error getting replacement meal:', error);
+      // Final fallback to database
+      return await this.getRandomMealByType(mealType, preferences, userId);
+    }
+  }
+
+
+  static updateSingleMeal(userId, date, mealType, newMealId) {
+    return new Promise((resolve, reject) => {
+      const column = `${mealType}_id`;
+      db.run(
+        `UPDATE user_meal_plans SET ${column} = ? WHERE user_id = ? AND date = ?`,
+        [newMealId, userId, date],
+        function(err) {
+          if (err) reject(err);
+          else resolve({ updated: this.changes > 0 });
+        }
+      );
     });
   }
 }

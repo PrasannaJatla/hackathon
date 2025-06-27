@@ -8,6 +8,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const mealRoutes = require('./routes/mealRoutes');
 const recipeRoutes = require('./routes/recipeRoutes');
+const favoriteRoutes = require('./routes/favoriteRoutes');
 require('./config/database');
 
 const app = express();
@@ -23,6 +24,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/meals', mealRoutes);
 app.use('/api/recipes', recipeRoutes);
+app.use('/api/favorites', favoriteRoutes);
 
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/index.html'));

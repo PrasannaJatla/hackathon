@@ -245,43 +245,123 @@
             </footer>
         </div>
         
-        <div class="profile-setup-page hidden" id="profileSetupContainer">
+        <div class="profile-setup-page dark hidden" id="profileSetupContainer">
             <div class="profile-setup-wrapper">
+                <div class="welcome-header">
+                    <h1>Set up your account</h1>
+                    <p>Let's get started setting up your account! We'll need to know a little bit about you to make food recommendations.</p>
+                </div>
+                
                 <div class="profile-header">
                     <div class="profile-progress">
                         <div class="progress-steps">
                             <div class="step active">
                                 <span class="step-number">1</span>
-                                <span class="step-label">Basic Info</span>
+                                <span class="step-label">Your diet</span>
                             </div>
                             <div class="step">
                                 <span class="step-number">2</span>
-                                <span class="step-label">Lifestyle</span>
+                                <span class="step-label">About you</span>
                             </div>
                             <div class="step">
                                 <span class="step-number">3</span>
-                                <span class="step-label">Preferences</span>
+                                <span class="step-label">Your meals</span>
                             </div>
                         </div>
                         <div class="progress-bar">
                             <div class="progress-fill" style="width: 33%;"></div>
                         </div>
                     </div>
-                    
-                    <div class="profile-intro">
-                        <h1>Let's personalize your experience</h1>
-                        <p>Tell us a bit about yourself to create the perfect meal plan for you</p>
-                    </div>
                 </div>
                 
                 <div class="profile-content">
                     <form id="profileForm">
-                        <!-- Step 1: Basic Info -->
+                        <!-- Step 1: Dietary Preferences -->
                         <div class="form-step active" id="step1">
                             <div class="step-header">
-                                <span class="step-icon">👤</span>
-                                <h2>Basic Information</h2>
-                                <p>Let's start with some basic details about you</p>
+                                <span class="step-icon">🥗</span>
+                                <h2>What do you like to eat?</h2>
+                                <p>Choose from a primary diet type. You can exclude specific foods in the next step.</p>
+                            </div>
+                            
+                            <div class="diet-cards">
+                                <label class="diet-card anything">
+                                    <input type="radio" name="dietType" value="anything" required>
+                                    <div class="diet-card-content">
+                                        <span class="diet-icon">🍽️</span>
+                                        <h4>Anything</h4>
+                                        <p class="diet-excludes"><strong>Excludes:</strong> Nothing</p>
+                                    </div>
+                                </label>
+                                
+                                <label class="diet-card">
+                                    <input type="radio" name="dietType" value="keto" required>
+                                    <div class="diet-card-content">
+                                        <span class="diet-icon">🥓</span>
+                                        <h4>Keto</h4>
+                                        <p class="diet-excludes"><strong>Excludes:</strong> High-carb Grains, Refined Starches, Sugar</p>
+                                    </div>
+                                </label>
+                                
+                                <label class="diet-card">
+                                    <input type="radio" name="dietType" value="mediterranean" required>
+                                    <div class="diet-card-content">
+                                        <span class="diet-icon">🫒</span>
+                                        <h4>Mediterranean</h4>
+                                        <p class="diet-excludes"><strong>Excludes:</strong> Red Meat, Fruit juice, Processed Meats, Refined Starches, Sugar</p>
+                                    </div>
+                                </label>
+                                
+                                <label class="diet-card">
+                                    <input type="radio" name="dietType" value="paleo" required>
+                                    <div class="diet-card-content">
+                                        <span class="diet-icon">🥩</span>
+                                        <h4>Paleo</h4>
+                                        <p class="diet-excludes"><strong>Excludes:</strong> Dairy, Grains, Legumes, Refined Starches, Soy, Sugar</p>
+                                    </div>
+                                </label>
+                                
+                                <label class="diet-card">
+                                    <input type="radio" name="dietType" value="vegan" required>
+                                    <div class="diet-card-content">
+                                        <span class="diet-icon">🥬</span>
+                                        <h4>Vegan</h4>
+                                        <p class="diet-excludes"><strong>Excludes:</strong> Red Meat, Poultry, Fish, Shellfish, Dairy, Eggs, Mayo, Honey</p>
+                                    </div>
+                                </label>
+                                
+                                <label class="diet-card">
+                                    <input type="radio" name="dietType" value="vegetarian" required>
+                                    <div class="diet-card-content">
+                                        <span class="diet-icon">🥦</span>
+                                        <h4>Vegetarian</h4>
+                                        <p class="diet-excludes"><strong>Excludes:</strong> Red Meat, Poultry, Fish, Shellfish</p>
+                                    </div>
+                                </label>
+                            </div>
+                            
+                            <div class="custom-diet-section">
+                                <p class="custom-diet-toggle">Don't see your preferred diet? Choose "Anything" and then customize it later.</p>
+                            </div>
+                            
+                            <div class="step-actions">
+                                <button type="button" class="btn btn-secondary" onclick="previousStep(1)">
+                                    <span class="btn-icon">←</span>
+                                    Back
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="nextStep(1)">
+                                    Continue
+                                    <span class="btn-icon">→</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Step 2: About You -->
+                        <div class="form-step" id="step2">
+                            <div class="step-header">
+                                <span class="step-icon">🎯</span>
+                                <h2>About you</h2>
+                                <p>Your height, weight, and future goals</p>
                             </div>
                             
                             <div class="form-grid">
@@ -349,22 +429,6 @@
                                         <button type="button" class="unit-btn" onclick="toggleWeightUnit('lbs')">lbs</button>
                                     </div>
                                 </div>
-                            </div>
-                            
-                            <div class="step-actions">
-                                <button type="button" class="btn btn-primary" onclick="nextStep(1)">
-                                    Continue
-                                    <span class="btn-icon">→</span>
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <!-- Step 2: Lifestyle -->
-                        <div class="form-step" id="step2">
-                            <div class="step-header">
-                                <span class="step-icon">🏃‍♂️</span>
-                                <h2>Your Lifestyle</h2>
-                                <p>Help us understand your daily routine and goals</p>
                             </div>
                             
                             <div class="form-group">
@@ -445,73 +509,39 @@
                             </div>
                         </div>
                         
-                        <!-- Step 3: Preferences -->
+                        <!-- Step 3: Your Meals -->
                         <div class="form-step" id="step3">
                             <div class="step-header">
-                                <span class="step-icon">🥗</span>
-                                <h2>Dietary Preferences</h2>
-                                <p>Select all that apply to customize your meal plans</p>
+                                <span class="step-icon">🍽️</span>
+                                <h2>Your meals</h2>
+                                <p>The meals you eat in a day and your favorite dishes</p>
                             </div>
                             
-                            <div class="form-group">
-                                <label>
-                                    <span class="label-icon">🌱</span>
-                                    Dietary Preferences
-                                </label>
-                                <div class="preference-tags">
-                                    <label class="preference-tag">
-                                        <input type="checkbox" name="dietaryPreferences" value="vegetarian">
-                                        <span class="tag-content">
-                                            <span class="tag-icon">🥬</span>
-                                            Vegetarian
-                                        </span>
-                                    </label>
-                                    <label class="preference-tag">
-                                        <input type="checkbox" name="dietaryPreferences" value="vegan">
-                                        <span class="tag-content">
-                                            <span class="tag-icon">🌱</span>
-                                            Vegan
-                                        </span>
-                                    </label>
-                                    <label class="preference-tag">
-                                        <input type="checkbox" name="dietaryPreferences" value="gluten-free">
-                                        <span class="tag-content">
-                                            <span class="tag-icon">🌾</span>
-                                            Gluten-Free
-                                        </span>
-                                    </label>
-                                    <label class="preference-tag">
-                                        <input type="checkbox" name="dietaryPreferences" value="dairy-free">
-                                        <span class="tag-content">
-                                            <span class="tag-icon">🥛</span>
-                                            Dairy-Free
-                                        </span>
-                                    </label>
-                                    <label class="preference-tag">
-                                        <input type="checkbox" name="dietaryPreferences" value="low-carb">
-                                        <span class="tag-content">
-                                            <span class="tag-icon">🍞</span>
-                                            Low Carb
-                                        </span>
-                                    </label>
-                                    <label class="preference-tag">
-                                        <input type="checkbox" name="dietaryPreferences" value="high-protein">
-                                        <span class="tag-content">
-                                            <span class="tag-icon">💪</span>
-                                            High Protein
-                                        </span>
-                                    </label>
+                            <div class="meal-preferences">
+                                <div class="meals-per-day">
+                                    <h3>How many meals do you eat per day?</h3>
+                                    <div class="meal-count-selector">
+                                        <button type="button" class="meal-count-btn" onclick="adjustMealCount(-1)">−</button>
+                                        <span class="meal-count-display" id="mealCountDisplay">3</span>
+                                        <button type="button" class="meal-count-btn" onclick="adjustMealCount(1)">+</button>
+                                    </div>
+                                    <input type="hidden" id="mealsPerDay" name="mealsPerDay" value="3">
                                 </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="allergies">
-                                    <span class="label-icon">⚠️</span>
-                                    Allergies or Intolerances
-                                </label>
-                                <div class="allergy-input">
-                                    <input type="text" id="allergies" placeholder="e.g., nuts, shellfish, lactose">
-                                    <p class="input-help">Separate multiple allergies with commas</p>
+                                
+                                <div class="favorite-foods">
+                                    <h3>What are your favorite foods?</h3>
+                                    <textarea name="favoriteFoods" id="favoriteFoods" placeholder="Tell us about foods you love to eat... (optional)"></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="allergies">
+                                        <span class="label-icon">⚠️</span>
+                                        Allergies or foods to avoid
+                                    </label>
+                                    <div class="allergy-input">
+                                        <input type="text" id="allergies" placeholder="e.g., nuts, shellfish, lactose">
+                                        <p class="input-help">Separate multiple items with commas</p>
+                                    </div>
                                 </div>
                             </div>
                             

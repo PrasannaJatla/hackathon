@@ -298,15 +298,18 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
         return;
     }
     
-    // Get selected dietary preferences
-    const selectedPreferences = Array.from(document.querySelectorAll('input[name="dietaryPreferences"]:checked'))
-        .map(checkbox => checkbox.value)
-        .join(',');
+    // Get selected diet type
+    const dietTypeInput = document.querySelector('input[name="dietType"]:checked');
+    const dietType = dietTypeInput ? dietTypeInput.value : 'anything';
     
     // Get gender value
     const genderInput = document.querySelector('input[name="gender"]:checked');
     const activityInput = document.querySelector('input[name="activityLevel"]:checked');
     const goalInput = document.querySelector('input[name="caloricGoal"]:checked');
+    
+    // Get meals per day
+    const mealsPerDay = document.getElementById('mealsPerDay').value;
+    const favoriteFoods = document.getElementById('favoriteFoods').value;
     
     // Handle height conversion
     let height = document.getElementById('height').value;
@@ -332,10 +335,12 @@ document.getElementById('profileForm').addEventListener('submit', async (e) => {
         gender: genderInput ? genderInput.value : '',
         height: parseFloat(height),
         weight: parseFloat(weight),
-        activity_level: activityInput ? activityInput.value : '',
-        dietary_preferences: selectedPreferences,
+        activity_level: activityInput ? activityInput.value : 'moderate',
+        dietary_preferences: dietType,
         allergies: document.getElementById('allergies').value,
-        caloric_goal: goalInput ? goalInput.value : ''
+        caloric_goal: goalInput ? goalInput.value : 'maintain',
+        meals_per_day: parseInt(mealsPerDay),
+        favorite_foods: favoriteFoods
     };
     
     try {
@@ -504,7 +509,7 @@ function renderMealItem(mealType, meal, mealClass) {
     console.log(`Meal ${mealType} details: id=${mealId}, name=${mealName}, calories=${mealCalories}`);
     
     return `
-        <div class="meal-item ${mealClass}">
+        <div class="meal-item ${mealClass}" data-meal-id="${mealId}" data-meal-type="${mealType.toLowerCase()}">
             <div class="meal-header-section">
                 <h3>${mealType}</h3>
                 <span class="meal-calories">${mealCalories} Calories</span>
@@ -519,7 +524,7 @@ function renderMealItem(mealType, meal, mealClass) {
                     <h4 class="meal-title" onclick="viewMealDetails(${mealId})">${mealName}</h4>
                     <p class="meal-serving">1 serving</p>
                 </div>
-                <button class="meal-options-btn" onclick="showMealOptions(${mealId})">⋮</button>
+                <button class="meal-options-btn" onclick="showMealOptions(${mealId}, event, '${mealType.toLowerCase()}')">⋮</button>
             </div>
         </div>
     `;
@@ -585,14 +590,19 @@ function createNutritionPieChart(totalNutrition) {
 }
 
 // Show meal options menu
-function showMealOptions(mealId) {
-    event.stopPropagation();
+async function showMealOptions(mealId, event, mealType) {
+    if (event) {
+        event.stopPropagation();
+    }
     
     // Remove any existing menu
     const existingMenu = document.querySelector('.meal-options-menu');
     if (existingMenu) {
         existingMenu.remove();
     }
+    
+    // Check if meal is favorited
+    const isFavorited = await checkIfFavorited(mealId);
     
     // Create menu
     const menu = document.createElement('div');
@@ -601,16 +611,16 @@ function showMealOptions(mealId) {
         <div class="menu-item" onclick="viewMealDetails(${mealId})">
             <span class="menu-icon">📖</span> View Recipe
         </div>
-        <div class="menu-item" onclick="replaceMeal(${mealId})">
+        <div class="menu-item" onclick="replaceMeal(${mealId}, '${mealType}')">
             <span class="menu-icon">🔄</span> Replace Meal
         </div>
-        <div class="menu-item" onclick="addToFavorites(${mealId})">
-            <span class="menu-icon">❤️</span> Add to Favorites
+        <div class="menu-item" onclick="toggleFavorite(${mealId})">
+            <span class="menu-icon">${isFavorited ? '❤️' : '🤍'}</span> ${isFavorited ? 'Remove from' : 'Add to'} Favorites
         </div>
     `;
     
     // Position menu near button
-    const button = event.target;
+    const button = event ? event.target : document.querySelector(`[data-meal-id="${mealId}"] .meal-options-btn`);
     const rect = button.getBoundingClientRect();
     menu.style.position = 'fixed';
     menu.style.top = rect.bottom + 'px';
@@ -628,15 +638,218 @@ function showMealOptions(mealId) {
 }
 
 // Replace meal function
-function replaceMeal(mealId) {
-    console.log('Replace meal:', mealId);
-    // TODO: Implement meal replacement
+async function replaceMeal(mealId, mealType) {
+    console.log('Replace meal:', mealId, 'Type:', mealType);
+    
+    try {
+        // Show loading state
+        const mealElement = document.querySelector(`[data-meal-id="${mealId}"]`);
+        if (mealElement) {
+            mealElement.style.opacity = '0.5';
+            mealElement.style.pointerEvents = 'none';
+        }
+        
+        const response = await fetch(`${API_URL}/meals/replace`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                mealId: mealId,
+                mealType: mealType
+            })
+        });
+        
+        if (response.ok) {
+            const { newMeal } = await response.json();
+            
+            // Update the meal in the UI
+            if (mealElement && newMeal) {
+                const newMealHtml = renderMealItem(mealType.charAt(0).toUpperCase() + mealType.slice(1), newMeal, mealType);
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = newMealHtml;
+                const newMealElement = tempDiv.firstElementChild;
+                
+                // Replace the old meal with the new one
+                mealElement.parentNode.replaceChild(newMealElement, mealElement);
+                
+                // Update nutrition totals
+                await loadDashboard();
+            }
+            
+            showSuccess('Meal replaced successfully!');
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to replace meal');
+        }
+    } catch (error) {
+        console.error('Replace meal error:', error);
+        showError(error.message || 'Failed to replace meal');
+        
+        // Restore the meal element state
+        const mealElement = document.querySelector(`[data-meal-id="${mealId}"]`);
+        if (mealElement) {
+            mealElement.style.opacity = '1';
+            mealElement.style.pointerEvents = 'auto';
+        }
+    }
 }
 
 // Add to favorites function
-function addToFavorites(mealId) {
-    console.log('Add to favorites:', mealId);
-    // TODO: Implement favorites
+async function addToFavorites(mealId) {
+    try {
+        const response = await fetch(`${API_URL}/favorites/${mealId}`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            showSuccess('Meal added to favorites!');
+            // Update UI to show the meal is favorited
+            updateFavoriteButtons(mealId, true);
+        } else {
+            const error = await response.json();
+            showError(error.error || 'Failed to add to favorites');
+        }
+    } catch (error) {
+        console.error('Add to favorites error:', error);
+        showError('Failed to add to favorites');
+    }
+}
+
+// Remove from favorites function
+async function removeFromFavorites(mealId) {
+    try {
+        const response = await fetch(`${API_URL}/favorites/${mealId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            showSuccess('Meal removed from favorites!');
+            // Update UI to show the meal is not favorited
+            updateFavoriteButtons(mealId, false);
+        } else {
+            const error = await response.json();
+            showError(error.error || 'Failed to remove from favorites');
+        }
+    } catch (error) {
+        console.error('Remove from favorites error:', error);
+        showError('Failed to remove from favorites');
+    }
+}
+
+// Toggle favorite status
+async function toggleFavorite(mealId) {
+    const isFavorited = await checkIfFavorited(mealId);
+    if (isFavorited) {
+        await removeFromFavorites(mealId);
+    } else {
+        await addToFavorites(mealId);
+    }
+}
+
+// Check if a meal is favorited
+async function checkIfFavorited(mealId) {
+    try {
+        const response = await fetch(`${API_URL}/favorites/${mealId}/check`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            return data.isFavorite;
+        }
+        return false;
+    } catch (error) {
+        console.error('Check favorite error:', error);
+        return false;
+    }
+}
+
+// Update favorite buttons in the UI
+function updateFavoriteButtons(mealId, isFavorited) {
+    const buttons = document.querySelectorAll(`[data-meal-id="${mealId}"] .favorite-btn`);
+    buttons.forEach(btn => {
+        if (isFavorited) {
+            btn.classList.add('favorited');
+            btn.innerHTML = '❤️ Favorited';
+        } else {
+            btn.classList.remove('favorited');
+            btn.innerHTML = '🤍 Add to Favorites';
+        }
+    });
+}
+
+// Get user's favorite meals
+async function getFavoriteMeals() {
+    try {
+        const response = await fetch(`${API_URL}/favorites`, {
+            headers: { 'Authorization': `Bearer ${authToken}` }
+        });
+        
+        if (response.ok) {
+            return await response.json();
+        }
+        return [];
+    } catch (error) {
+        console.error('Get favorites error:', error);
+        return [];
+    }
+}
+
+// Show favorites modal
+async function showFavorites() {
+    const favorites = await getFavoriteMeals();
+    
+    const modal = document.createElement('div');
+    modal.className = 'modal shopping-list-modal';
+    
+    const favoritesList = favorites.length > 0 
+        ? favorites.map(meal => `
+            <div class="favorite-meal-item" data-meal-id="${meal.id}">
+                <div class="favorite-meal-info">
+                    ${meal.image_url ? `
+                        <img src="${meal.image_url}" alt="${meal.name}" class="favorite-meal-image">
+                    ` : ''}
+                    <div class="favorite-meal-details">
+                        <h4>${meal.name}</h4>
+                        <p>${meal.meal_type} • ${meal.calories} calories</p>
+                        <p class="favorite-date">Favorited ${new Date(meal.favorited_at).toLocaleDateString()}</p>
+                    </div>
+                </div>
+                <div class="favorite-meal-actions">
+                    <button class="btn btn-small" onclick="viewMealDetails(${meal.id})">View Recipe</button>
+                    <button class="btn btn-small btn-danger" onclick="removeFavoriteFromList(${meal.id})">Remove</button>
+                </div>
+            </div>
+        `).join('')
+        : '<p class="no-favorites">You haven\'t added any favorite meals yet!</p>';
+    
+    modal.innerHTML = `
+        <div class="modal-content shopping-list-content">
+            <div class="modal-header">
+                <h2>My Favorite Meals</h2>
+                <button class="close-modal" onclick="this.closest('.modal').remove()">×</button>
+            </div>
+            <div class="modal-body favorites-list">
+                ${favoritesList}
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+}
+
+// Remove favorite from the favorites list view
+async function removeFavoriteFromList(mealId) {
+    if (confirm('Remove this meal from your favorites?')) {
+        await removeFromFavorites(mealId);
+        // Refresh the favorites modal
+        document.querySelector('.modal').remove();
+        showFavorites();
+    }
 }
 
 // Create pie chart for meal card
@@ -1095,6 +1308,9 @@ function renderDashboard(mealPlan, totalNutrition, regenerationCount = 0, regene
                     <button class="btn btn-primary compact" onclick="showShoppingList()">
                         <span class="btn-icon">🛒</span> Shopping List
                     </button>
+                    <button class="btn btn-secondary compact" onclick="showFavorites()">
+                        <span class="btn-icon">❤️</span> My Favorites
+                    </button>
                 </div>
             </div>
             
@@ -1154,6 +1370,20 @@ function renderDashboard(mealPlan, totalNutrition, regenerationCount = 0, regene
     }, 100);
 }
 
+// Meal count adjustment function
+function adjustMealCount(change) {
+    const display = document.getElementById('mealCountDisplay');
+    const input = document.getElementById('mealsPerDay');
+    let currentCount = parseInt(input.value);
+    
+    // Adjust count with bounds (minimum 1, maximum 6)
+    currentCount = Math.max(1, Math.min(6, currentCount + change));
+    
+    // Update display and input
+    display.textContent = currentCount;
+    input.value = currentCount;
+}
+
 // Make functions available globally for onclick handlers
 window.togglePassword = togglePassword;
 window.nextStep = nextStep;
@@ -1168,6 +1398,10 @@ window.printShoppingList = printShoppingList;
 window.showMealOptions = showMealOptions;
 window.replaceMeal = replaceMeal;
 window.addToFavorites = addToFavorites;
+window.toggleFavorite = toggleFavorite;
+window.showFavorites = showFavorites;
+window.removeFavoriteFromList = removeFavoriteFromList;
+window.adjustMealCount = adjustMealCount;
 
 // Initialize App
 if (authToken) {

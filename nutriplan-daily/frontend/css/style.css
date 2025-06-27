@@ -23,6 +23,14 @@
     --gradient-primary: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
     --gradient-warm: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+    
+    /* Dark theme specific */
+    --dark-bg: #1a1a1a;
+    --dark-surface: #2d2d2d;
+    --dark-surface-light: #3a3a3a;
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #a0a0a0;
+    --dark-border: #404040;
 }
 
 body {
@@ -920,13 +928,13 @@ body {
 
 .card-content h4 {
     font-size: 18px;
-    color: #2c3e50;
+    color: var(--text-primary);
     margin-bottom: 5px;
 }
 
 .card-content p {
     font-size: 14px;
-    color: #7f8c8d;
+    color: var(--text-secondary);
 }
 
 .activity-card input:checked ~ .card-content,
@@ -2357,6 +2365,105 @@ input.error {
     font-size: 16px;
 }
 
+/* Favorite button styles */
+.favorite-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.favorite-btn:hover {
+    background: var(--surface-light);
+    border-color: var(--primary-color);
+}
+
+.favorite-btn.favorited {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    border-color: var(--primary-color);
+}
+
+/* Favorites modal styles */
+.favorites-list {
+    max-height: 600px;
+    overflow-y: auto;
+    padding: 20px;
+}
+
+.favorite-meal-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    margin-bottom: 15px;
+    background: var(--surface-light);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.favorite-meal-item:hover {
+    background: var(--surface);
+    box-shadow: var(--shadow);
+}
+
+.favorite-meal-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex: 1;
+}
+
+.favorite-meal-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+.favorite-meal-details h4 {
+    margin: 0 0 8px 0;
+    font-size: 18px;
+    color: var(--text-primary);
+}
+
+.favorite-meal-details p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.favorite-date {
+    font-size: 12px !important;
+    color: var(--text-secondary) !important;
+    margin-top: 4px !important;
+}
+
+.favorite-meal-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.no-favorites {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.btn-danger {
+    background: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
     .dashboard-layout {
@@ -2417,4 +2524,326 @@ input.error {
     .shopping-item.checked {
         opacity: 1;
     }
+}
+/* Dark Profile Setup Styles */
+.profile-setup-page.dark {
+    background: var(--dark-bg);
+    color: var(--dark-text-primary);
+}
+
+.profile-setup-page.dark .profile-header,
+.profile-setup-page.dark .profile-content {
+    background: var(--dark-surface);
+    color: var(--dark-text-primary);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.profile-setup-page.dark .step-number {
+    background: var(--dark-surface-light);
+    color: var(--dark-text-secondary);
+}
+
+.profile-setup-page.dark .step.active .step-number,
+.profile-setup-page.dark .step.completed .step-number {
+    background: var(--primary-color);
+    color: white;
+}
+
+.profile-setup-page.dark .step-label {
+    color: var(--dark-text-secondary);
+}
+
+.profile-setup-page.dark .step.active .step-label {
+    color: var(--dark-text-primary);
+}
+
+.profile-setup-page.dark .progress-bar {
+    background: var(--dark-surface-light);
+}
+
+.profile-setup-page.dark .step-header h2 {
+    color: var(--dark-text-primary);
+}
+
+.profile-setup-page.dark .step-header p {
+    color: var(--dark-text-secondary);
+}
+
+.profile-setup-page.dark .form-group label {
+    color: var(--dark-text-primary) !important;
+}
+
+.profile-setup-page.dark .form-group input,
+.profile-setup-page.dark .form-group select {
+    background: var(--dark-surface-light);
+    color: var(--dark-text-primary);
+    border-color: var(--dark-border);
+}
+
+.profile-setup-page.dark .form-group input:focus,
+.profile-setup-page.dark .form-group select:focus {
+    background: var(--dark-surface);
+    border-color: var(--primary-color);
+}
+
+/* Dietary Preference Cards */
+.diet-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+    margin-top: 30px;
+}
+
+.diet-card {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.diet-card input {
+    position: absolute;
+    opacity: 0;
+}
+
+.diet-card-content {
+    padding: 30px;
+    border: 2px solid var(--dark-border);
+    border-radius: 16px;
+    background: var(--dark-surface-light);
+    text-align: center;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.diet-card-content::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--gradient-primary);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: 0;
+}
+
+.diet-card input:checked ~ .diet-card-content {
+    border-color: var(--primary-color);
+    transform: translateY(-4px);
+}
+
+.diet-card input:checked ~ .diet-card-content::before {
+    opacity: 0.1;
+}
+
+.diet-icon {
+    font-size: 64px;
+    display: block;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+}
+
+.diet-card-content h4 {
+    font-size: 20px;
+    margin-bottom: 8px;
+    color: var(--dark-text-primary);
+    position: relative;
+    z-index: 1;
+}
+
+.diet-excludes {
+    font-size: 13px;
+    color: var(--dark-text-secondary);
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+}
+
+.diet-excludes strong {
+    color: var(--danger-color);
+    font-weight: 600;
+}
+
+/* Anything option style */
+.diet-card.anything .diet-card-content {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.1) 100%);
+}
+
+/* Custom diet input */
+.custom-diet-section {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.custom-diet-toggle {
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 16px;
+    margin-bottom: 20px;
+    display: inline-block;
+}
+
+.custom-diet-input {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Meal preferences step */
+.meal-preferences {
+    display: grid;
+    gap: 30px;
+}
+
+.meals-per-day {
+    background: var(--dark-surface-light);
+    padding: 30px;
+    border-radius: 16px;
+    text-align: center;
+}
+
+.meal-count-selector {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+.meal-count-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 2px solid var(--primary-color);
+    background: transparent;
+    color: var(--primary-color);
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.meal-count-btn:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+.meal-count-display {
+    font-size: 48px;
+    font-weight: 700;
+    color: var(--primary-color);
+    min-width: 80px;
+    text-align: center;
+}
+
+.favorite-foods {
+    background: var(--dark-surface-light);
+    padding: 30px;
+    border-radius: 16px;
+}
+
+.favorite-foods h3 {
+    margin-bottom: 20px;
+    color: var(--dark-text-primary);
+}
+
+.profile-setup-page.dark h3 {
+    color: var(--dark-text-primary) !important;
+}
+
+.favorite-foods textarea {
+    width: 100%;
+    min-height: 150px;
+    background: var(--dark-surface);
+    border: 1px solid var(--dark-border);
+    border-radius: 8px;
+    padding: 15px;
+    color: var(--dark-text-primary);
+    resize: vertical;
+}
+
+/* About You Step Improvements */
+.profile-setup-page.dark .card-content {
+    background: var(--dark-surface-light);
+    border-color: var(--dark-border);
+    color: var(--dark-text-primary);
+}
+
+.profile-setup-page.dark .card-content h4 {
+    color: var(--dark-text-primary) !important;
+}
+
+.profile-setup-page.dark .card-content p {
+    color: var(--dark-text-secondary) !important;
+}
+
+.profile-setup-page.dark .activity-card .card-content h4,
+.profile-setup-page.dark .goal-card .card-content h4 {
+    color: var(--dark-text-primary) !important;
+}
+
+.profile-setup-page.dark .activity-card .card-content p,
+.profile-setup-page.dark .goal-card .card-content p {
+    color: var(--dark-text-secondary) !important;
+}
+
+.profile-setup-page.dark .activity-card input:checked ~ .card-content,
+.profile-setup-page.dark .goal-card input:checked ~ .card-content {
+    background: linear-gradient(135deg, rgba(34, 197, 94, 0.2) 0%, rgba(22, 163, 74, 0.2) 100%);
+    border-color: var(--primary-color);
+}
+
+.profile-setup-page.dark .activity-card input:checked ~ .card-content h4,
+.profile-setup-page.dark .goal-card input:checked ~ .card-content h4 {
+    color: var(--dark-text-primary) !important;
+}
+
+.profile-setup-page.dark .activity-card input:checked ~ .card-content p,
+.profile-setup-page.dark .goal-card input:checked ~ .card-content p {
+    color: var(--dark-text-secondary) !important;
+}
+
+.profile-setup-page.dark .unit-btn {
+    background: var(--dark-surface-light);
+    border-color: var(--dark-border);
+    color: var(--dark-text-secondary);
+}
+
+.profile-setup-page.dark .unit-btn.active {
+    background: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* Welcome animation */
+@keyframes welcomeFade {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.welcome-header {
+    text-align: center;
+    padding: 40px 20px;
+    animation: welcomeFade 0.8s ease;
+}
+
+.welcome-header h1 {
+    font-size: 48px;
+    margin-bottom: 10px;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.welcome-header p {
+    font-size: 20px;
+    color: var(--dark-text-secondary);
 }

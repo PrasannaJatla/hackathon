@@ -25,6 +25,7 @@ db.serialize(() => {
     dietary_preferences TEXT,
     allergies TEXT,
     caloric_goal TEXT,
+    regeneration_count INTEGER DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   )`);
 
@@ -70,6 +71,17 @@ db.serialize(() => {
     FOREIGN KEY (breakfast_id) REFERENCES meals (id),
     FOREIGN KEY (lunch_id) REFERENCES meals (id),
     FOREIGN KEY (dinner_id) REFERENCES meals (id)
+  )`);
+
+  // Favorites table
+  db.run(`CREATE TABLE IF NOT EXISTS favorites (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    meal_id INTEGER NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (meal_id) REFERENCES meals (id),
+    UNIQUE(user_id, meal_id)
   )`);
 
   // Insert sample meals if the table is empty
